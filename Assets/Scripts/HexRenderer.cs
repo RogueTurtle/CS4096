@@ -23,6 +23,7 @@ public class HexRenderer : MonoBehaviour
     public float innerSize;
     public float outerSize;
     public float height;
+    public bool isFlat;
 
     private Mesh m_mesh;
     private MeshFilter m_meshFilter;
@@ -44,19 +45,12 @@ public class HexRenderer : MonoBehaviour
         m_meshRenderer.material = material;
     }
 
-    private void OnEnable()
+    //TODO change update method to Start after prototyping complete
+    private void Update()
     {
         DrawMesh();
     }
 
-    public void OnValidate()
-    {
-        if (Application.isPlaying)
-        {
-            DrawMesh();
-        }
-    }
-    
     public void DrawMesh()
     {
         DrawFaces();
@@ -70,11 +64,27 @@ public class HexRenderer : MonoBehaviour
         //Top Faces
         for (int point = 0; point < 6; point++)
         {
-            m_faces.Add(CreateFace(innerSize, outerSize, height / 2f, height / 2f, point));
+            m_faces.Add(CreateFace(innerSize, outerSize, height / 2f, height / 2f, point, false));
+        }
+
+        //Bottom Faces
+        for (int point = 0; point < 6; point++)
+        {
+            m_faces.Add(CreateFace(innerSize, outerSize, -height / 2f, -height / 2f, point, true));
+        }
+        //Outer Faces
+        for (int point = 0; point < 6; point++)
+        {
+            m_faces.Add(CreateFace(outerSize, outerSize, height / 2f, -height / 2f, point, true));
+        }
+        //Inner Faces
+        for (int point = 0; point < 6; point++)
+        {
+            m_faces.Add(CreateFace(innerSize, innerSize, height / 2f, -height / 2f, point, false));
         }
     }
 
-    private Face CreateFace(float innerRad, float outerRad, float heightA, float heightB, int point, bool reverse = false)
+    private Face CreateFace(float innerRad, float outerRad, float heightA, float heightB, int point, bool reverse)
     {
         Vector3 pointA = GetPoint(innerRad, heightB, point);
         Vector3 pointB = GetPoint(innerRad, heightB, (point < 5) ? point + 1 : 0);
@@ -89,12 +99,12 @@ public class HexRenderer : MonoBehaviour
             vertices.Reverse();
         }
 
-        return new Face();
+        return new Face(vertices, triangles, uvs);
     }
 
     protected Vector3 GetPoint(float size, float height, int index)
     {
-        float angle_deg = 60 * index;
+        float angle_deg =isFlat ? 60 * index : 60*index-30;
         float angle_rad = Mathf.PI / 180f * angle_deg;
         return new Vector3((size * Mathf.Cos(angle_rad)), height, size * Mathf.Sin(angle_rad));
     }

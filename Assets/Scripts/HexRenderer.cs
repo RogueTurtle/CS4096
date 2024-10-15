@@ -1,3 +1,5 @@
+//TODO Optimisation
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -60,27 +62,15 @@ public class HexRenderer : MonoBehaviour
     private void DrawFaces()
     {
         m_faces = new List<Face>();
-
         //Top Faces
         for (int point = 0; point < 6; point++)
         {
             m_faces.Add(CreateFace(innerSize, outerSize, height / 2f, height / 2f, point, false));
         }
-
-        //Bottom Faces
-        for (int point = 0; point < 6; point++)
-        {
-            m_faces.Add(CreateFace(innerSize, outerSize, -height / 2f, -height / 2f, point, true));
-        }
         //Outer Faces
         for (int point = 0; point < 6; point++)
         {
             m_faces.Add(CreateFace(outerSize, outerSize, height / 2f, -height / 2f, point, true));
-        }
-        //Inner Faces
-        for (int point = 0; point < 6; point++)
-        {
-            m_faces.Add(CreateFace(innerSize, innerSize, height / 2f, -height / 2f, point, false));
         }
     }
 

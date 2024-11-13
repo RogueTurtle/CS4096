@@ -218,7 +218,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9390aba2ba148db4a834812ee3e03b12, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gridSize: {x: 15, y: 15}
+  gridSize: {x: 5, y: 5}
   outerSize: 1
   innerSize: 0
   height: 1

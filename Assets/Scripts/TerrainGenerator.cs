@@ -16,6 +16,11 @@ public class TerrainGenerator : MonoBehaviour
     {
         offsetX = Random.Range(0f, 9999f);
         offsetY = Random.Range(0f, 9999f);
+    }
+
+    private void Update()
+    {
+        
 
         Terrain terrain = GetComponent<Terrain>();
         terrain.terrainData = GenerateTerrain(terrain.terrainData);

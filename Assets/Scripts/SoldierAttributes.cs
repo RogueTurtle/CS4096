@@ -16,4 +16,18 @@ public class SoldierAttributes : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         agent.speed = speed;
     }
+
+    public void TakeDamage(float damage)
+    {
+        health -= damage;
+        if (health <= 0)
+        {
+            Die();
+        }
+    }
+
+    public void Die()
+    {
+
+    }
 }

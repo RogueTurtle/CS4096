@@ -18,8 +18,14 @@ public class GunScript : MonoBehaviour
     {
         RaycastHit hit;
         if (Physics.Raycast(soldier.transform.position, soldier.transform.forward, out hit, range)) 
-        { 
-            
+        {
+            Debug.Log(hit.transform.name);
+
+            SoldierAttributes target =  hit.transform.GetComponent<SoldierAttributes>();
+            if (target != null)
+            {
+                target.TakeDamage(damage);
+            }
         }
     }
 }

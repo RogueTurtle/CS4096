@@ -2,12 +2,12 @@ using UnityEngine;
 
 public class TerrainGenerator : MonoBehaviour
 {
-    public int depth = 20;
+    public int depth = 10;
 
     public int width = 256;
     public int height = 256;
 
-    public float scale = 20f;
+    public float scale = 15f;
 
     public float offsetX = 100f;
     public float offsetY = 100f;
@@ -16,11 +16,6 @@ public class TerrainGenerator : MonoBehaviour
     {
         offsetX = Random.Range(0f, 9999f);
         offsetY = Random.Range(0f, 9999f);
-    }
-
-    private void Update()
-    {
-        
 
         Terrain terrain = GetComponent<Terrain>();
         terrain.terrainData = GenerateTerrain(terrain.terrainData);

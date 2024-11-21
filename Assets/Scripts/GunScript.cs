@@ -4,8 +4,14 @@ public class GunScript : MonoBehaviour
 {
     public float damage = 10;
     public float range = 50f;
-
+    SoldierAttributes soldierAttributes;
     public GameObject soldier;
+
+    private void Start()
+    {
+        soldierAttributes = GetComponent<SoldierAttributes>();
+        damage = soldierAttributes.GetDamage();
+    }
     private void Update()
     {
         if (Input.GetButtonDown("Fire1"))
@@ -21,7 +27,7 @@ public class GunScript : MonoBehaviour
         {
             Debug.Log(hit.transform.name);
 
-            SoldierAttributes target =  hit.transform.GetComponent<SoldierAttributes>();
+            Health target =  hit.transform.GetComponent<Health>();
             if (target != null)
             {
                 target.TakeDamage(damage);

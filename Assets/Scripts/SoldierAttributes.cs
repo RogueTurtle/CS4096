@@ -8,6 +8,7 @@ public class SoldierAttributes : MonoBehaviour
     public float damage = 3f;
     public float speed = 10f;
     public float range = 50f;
+    public float morale = 100f;
 
     NavMeshAgent agent;
 
@@ -17,17 +18,18 @@ public class SoldierAttributes : MonoBehaviour
         agent.speed = speed;
     }
 
-    public void TakeDamage(float damage)
+    public float GetHealth()
     {
-        health -= damage;
-        if (health <= 0)
-        {
-            Die();
-        }
+        return health;
     }
 
-    public void Die()
+    public float GetDamage()
     {
+        return damage;
+    }
 
+    public float GetMorale()
+    {
+        return morale;
     }
 }

@@ -220,6 +220,8 @@ GameObject:
   - component: {fileID: 467625789}
   - component: {fileID: 467625788}
   - component: {fileID: 467625793}
+  - component: {fileID: 467625794}
+  - component: {fileID: 467625795}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Untagged
@@ -243,6 +245,7 @@ MonoBehaviour:
   damage: 3
   speed: 10
   range: 50
+  morale: 100
 --- !u!136 &467625789
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -358,6 +361,41 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!195 &467625794
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 467625787}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.5
+  m_Speed: 3.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2
+  m_BaseOffset: 1
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
+--- !u!114 &467625795
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 467625787}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20dc6dc0d79d0534e9d954e03ebdaaa2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  health: 0
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -727,6 +765,7 @@ MonoBehaviour:
   damage: 3
   speed: 10
   range: 50
+  morale: 100
 --- !u!114 &2008843778
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -742,6 +781,19 @@ MonoBehaviour:
   damage: 10
   range: 50
   soldier: {fileID: 455487169}
+--- !u!114 &2008843780
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2008843770}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20dc6dc0d79d0534e9d954e03ebdaaa2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  health: 0
 --- !u!1001 &5168316042843609366
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -805,6 +857,9 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 455487170}
     m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3744369039522153463, guid: 98a406e793b497543b8e802508c784da, type: 3}
+      insertIndex: 5
+      addedObject: {fileID: 2008843780}
     - targetCorrespondingSourceObject: {fileID: 3744369039522153463, guid: 98a406e793b497543b8e802508c784da, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2008843777}

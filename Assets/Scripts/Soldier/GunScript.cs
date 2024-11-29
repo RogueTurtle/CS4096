@@ -20,7 +20,7 @@ public class GunScript : MonoBehaviour
         }
     }
 
-    void Shoot()
+    public void Shoot() //Had to add public for this fsm could not access -Stephen
     {
         RaycastHit hit;
         if (Physics.Raycast(soldier.transform.position, soldier.transform.forward, out hit, range)) 

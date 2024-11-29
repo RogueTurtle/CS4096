@@ -34,7 +34,7 @@ public class TempAIFSM : MonoBehaviour
         // Set agent speed from SoldierAttributes
         if (attributes != null && agent != null)
         {
-            agent.speed = attributes.GetSpeed();
+            agent.speed = attributes.speed;
         }
     }
 

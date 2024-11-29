@@ -7,24 +7,29 @@ public class TempAIFSM : MonoBehaviour
     public State currentState = State.Idle;
 
     public Transform enemy; 
-    public Transform retreatPoint; //IF we decide to have retreating enabled
+    public Transform retreatPoint; 
     public NavMeshAgent agent; 
 
-    //All of these are placeholder values
-    public float detectionRange = 10f; // Distance to detect enemies
-    public float attackRange = 2f; // Distance to attack
-    public float retreatThreshold = 20f; // Health threshold to retreat
-    public float health = 100f; // Character's health
-    public float attackDamage = 10f; // Damage dealt to enemy per attack
+    public float detectionRange = 10f; 
+    public float attackRange = 2f; 
+    public float retreatThreshold = 20f; 
+    public float health = 100f; 
+    public float attackDamage = 10f; 
 
     private void Start()
     {
         agent = GetComponent<NavMeshAgent>();
+
+        if (agent == null)
+        {
+            Debug.LogError("NavMeshAgent component is missing!");
+        }
     }
 
     private void Update()
     {
-        // Evaluate the current state
+        Debug.Log($"Current State: {currentState}");
+
         switch (currentState)
         {
             case State.Idle:
@@ -45,28 +50,39 @@ public class TempAIFSM : MonoBehaviour
     private void IdleState()
     {
         Debug.Log("Idle...");
-        // Look for an enemy within detection range
-        if (enemy != null && Vector3.Distance(transform.position, enemy.position) < detectionRange)
+
+        if (enemy == null)
         {
-            currentState = State.Chase; // Transition to Chase state
+            Debug.LogWarning("No enemy assigned!");
+            return;
+        }
+
+        float distanceToEnemy = Vector3.Distance(transform.position, enemy.position);
+        Debug.Log($"Distance to enemy: {distanceToEnemy}");
+
+        if (distanceToEnemy < detectionRange)
+        {
+            Debug.Log("Enemy detected! Switching to Chase.");
+            currentState = State.Chase;
         }
     }
 
     private void ChaseState()
     {
         Debug.Log("Chasing...");
+
         if (enemy == null)
         {
-            currentState = State.Idle; // Transition back to Idle if no enemy
+            Debug.LogWarning("Enemy is missing! Switching to Idle.");
+            currentState = State.Idle;
             return;
         }
 
-        // Set destination to the enemy's position
         agent.SetDestination(enemy.position);
 
-        // Transition to Attack if within range
         if (Vector3.Distance(transform.position, enemy.position) <= attackRange)
         {
+            Debug.Log("Enemy in attack range! Switching to Attack.");
             currentState = State.Attack;
         }
     }
@@ -74,18 +90,19 @@ public class TempAIFSM : MonoBehaviour
     private void AttackState()
     {
         Debug.Log("Attacking...");
+
         if (enemy == null)
         {
-            currentState = State.Idle; // Transition to Idle if enemy is gone
+            Debug.LogWarning("Enemy is missing! Switching to Idle.");
+            currentState = State.Idle;
             return;
         }
 
-        // Simulate attacking the enemy (e.g., reduce enemy health)
         Debug.Log("Enemy hit!");
 
-        // Transition to Retreat if health is low
         if (health < retreatThreshold)
         {
+            Debug.Log("Health low! Switching to Retreat.");
             currentState = State.Retreat;
         }
     }
@@ -93,11 +110,19 @@ public class TempAIFSM : MonoBehaviour
     private void RetreatState()
     {
         Debug.Log("Retreating...");
-        agent.SetDestination(retreatPoint.position); // Move to retreat point
 
-        // Transition to Idle if reached the retreat point
+        if (retreatPoint == null)
+        {
+            Debug.LogError("No retreat point assigned! Switching to Idle.");
+            currentState = State.Idle;
+            return;
+        }
+
+        agent.SetDestination(retreatPoint.position);
+
         if (Vector3.Distance(transform.position, retreatPoint.position) < 2f)
         {
+            Debug.Log("Reached retreat point. Switching to Idle.");
             currentState = State.Idle;
         }
     }

@@ -10,19 +10,31 @@ public class TempAIFSM : MonoBehaviour
     public Transform retreatPoint; 
     public NavMeshAgent agent; 
 
-    public float detectionRange = 10f; 
-    public float attackRange = 2f; 
-    public float retreatThreshold = 20f; 
-    public float health = 100f; 
-    public float attackDamage = 10f; 
+    public float detectionRange = 10f;
+
+    // References to other components
+    private Health healthComponent;
+    private GunScript gunScript;
+    private SoldierAttributes attributes;
 
     private void Start()
     {
+        // Assign NavMeshAgent and check for its existence
         agent = GetComponent<NavMeshAgent>();
-
         if (agent == null)
         {
             Debug.LogError("NavMeshAgent component is missing!");
+        }
+
+        // Assign references to other components
+        healthComponent = GetComponent<Health>();
+        gunScript = GetComponent<GunScript>();
+        attributes = GetComponent<SoldierAttributes>();
+
+        // Set agent speed from SoldierAttributes
+        if (attributes != null && agent != null)
+        {
+            agent.speed = attributes.GetSpeed();
         }
     }
 
@@ -30,6 +42,7 @@ public class TempAIFSM : MonoBehaviour
     {
         Debug.Log($"Current State: {currentState}");
 
+        // FSM logic
         switch (currentState)
         {
             case State.Idle:
@@ -80,7 +93,7 @@ public class TempAIFSM : MonoBehaviour
 
         agent.SetDestination(enemy.position);
 
-        if (Vector3.Distance(transform.position, enemy.position) <= attackRange)
+        if (Vector3.Distance(transform.position, enemy.position) <= attributes.range)
         {
             Debug.Log("Enemy in attack range! Switching to Attack.");
             currentState = State.Attack;
@@ -98,11 +111,13 @@ public class TempAIFSM : MonoBehaviour
             return;
         }
 
-        Debug.Log("Enemy hit!");
+        // Use GunScript to shoot
+        gunScript.Shoot();
 
-        if (health < retreatThreshold)
+        // Check for health threshold to retreat
+        if (attributes.health < attributes.GetHealth() * 0.2f) // Retreat if health < 20%
         {
-            Debug.Log("Health low! Switching to Retreat.");
+            Debug.Log("Health is too low! Switching to Retreat.");
             currentState = State.Retreat;
         }
     }

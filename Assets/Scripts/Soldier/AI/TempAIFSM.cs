@@ -16,6 +16,8 @@ public class TempAIFSM : MonoBehaviour
     private float idleTimer = 0f; // Timer for idle to wander
     private float wanderTimer = 0f; // Timer for wandering
     private float wanderCooldown = 3f; // Default cooldown for wandering
+    private float attackCooldown = 1f; 
+    private float attackTimer = 0f; 
 
     // References to other components
     private Health healthComponent;
@@ -124,7 +126,6 @@ public class TempAIFSM : MonoBehaviour
     }
 }
 
-
     private void ChaseState()
     {
         Debug.Log("Chasing...");
@@ -146,24 +147,55 @@ public class TempAIFSM : MonoBehaviour
     }
 
     private void AttackState()
+{
+    Debug.Log("Attacking...");
+
+    // Ensure the enemy still exists
+    if (enemy == null)
     {
-        Debug.Log("Attacking...");
+        Debug.LogWarning("Enemy is missing! Switching to Idle.");
+        currentState = State.Idle;
+        return;
+    }
 
-        if (enemy == null)
-        {
-            Debug.LogWarning("Enemy is missing! Switching to Idle.");
-            currentState = State.Idle;
-            return;
-        }
+    // Stop movement during attack
+    agent.isStopped = true;
 
+    // Check if the enemy is out of range
+    float distanceToEnemy = Vector3.Distance(transform.position, enemy.position);
+    if (distanceToEnemy > attributes.range)
+    {
+        Debug.Log("Enemy out of range. Switching to Chase.");
+        agent.isStopped = false; // Allow movement again
+        currentState = State.Chase;
+        return;
+    }
+
+    // Rotate to face the enemy
+    Vector3 direction = (enemy.position - transform.position).normalized;
+    Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
+    transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
+
+    // Handle attack cooldown
+    attackTimer += Time.deltaTime;
+    if (attackTimer >= attackCooldown)
+    {
+        attackTimer = 0f; // Reset the timer
+
+        // Perform attack using the GunScript
         gunScript.Shoot();
 
-        if (attributes.health < attributes.GetHealth() * 0.2f)
-        {
-            Debug.Log("Health is too low! Switching to Retreat.");
-            currentState = State.Retreat;
-        }
+        Debug.Log("Attacking enemy!");
     }
+
+    // Check if health is too low
+    if (attributes.health < attributes.GetHealth() * 0.2f) // Retreat if health < 20%
+    {
+        Debug.Log("Health is too low! Switching to Retreat.");
+        agent.isStopped = false; // Allow movement again
+        currentState = State.Retreat;
+    }
+}
 
     private void RetreatState()
     {

@@ -24,17 +24,20 @@ public class Health : MonoBehaviour
         }
     }
 
-    public void Die()
+public float destroyDelay = 5f; // Time to destroy the object after death
+
+public void Die()
+{
+    Debug.Log($"{gameObject.name} is dead!");
+
+    // Activate the "ragdoll" physics
+    if (ragdollController != null)
     {
-        Debug.Log($"{gameObject.name} is dead!");
-
-        // Activate the "ragdoll" physics
-        if (ragdollController != null)
-        {
-            ragdollController.ActivateRagdoll();
-        }
-
-        // Optionally destroy the object after a delay
-        Destroy(gameObject, 5f);
+        ragdollController.ActivateRagdoll();
     }
+
+    // Destroy the object after a delay
+    Destroy(gameObject, destroyDelay);
+}
+
 }

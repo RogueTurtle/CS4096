@@ -3,14 +3,19 @@ using UnityEngine.AI;
 
 public class TempAIFSM : MonoBehaviour
 {
-    public enum State { Idle, Chase, Attack, Retreat }
+    public enum State { Idle, Wandering, Chase, Attack, Retreat }
     public State currentState = State.Idle;
 
-    public Transform enemy; 
-    public Transform retreatPoint; 
-    public NavMeshAgent agent; 
+    public Transform enemy;
+    public Transform retreatPoint;
+    public NavMeshAgent agent;
 
     public float detectionRange = 10f;
+    public float idleToWanderTime = 3f; // Time to wait in Idle before switching to Wandering
+
+    private float idleTimer = 0f; // Timer for idle to wander
+    private float wanderTimer = 0f; // Timer for wandering
+    private float wanderCooldown = 3f; // Default cooldown for wandering
 
     // References to other components
     private Health healthComponent;
@@ -19,19 +24,16 @@ public class TempAIFSM : MonoBehaviour
 
     private void Start()
     {
-        // Assign NavMeshAgent and check for its existence
         agent = GetComponent<NavMeshAgent>();
         if (agent == null)
         {
             Debug.LogError("NavMeshAgent component is missing!");
         }
 
-        // Assign references to other components
         healthComponent = GetComponent<Health>();
         gunScript = GetComponent<GunScript>();
         attributes = GetComponent<SoldierAttributes>();
 
-        // Set agent speed from SoldierAttributes
         if (attributes != null && agent != null)
         {
             agent.speed = attributes.speed;
@@ -39,72 +41,88 @@ public class TempAIFSM : MonoBehaviour
     }
 
     private void Update()
-{
-    // FSM logic
-    switch (currentState)
     {
-        case State.Idle:
-            IdleState();
-            break;
-        case State.Chase:
-            ChaseState();
-            break;
-        case State.Attack:
-            AttackState();
-            break;
-        case State.Retreat:
-            RetreatState();
-            break;
-    }
-}
+        Debug.Log($"Current State: {currentState}");
 
-private bool AllEnemiesDefeated()
-{
-    GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
-    return enemies.Length == 0;
-}
-
-  private void IdleState()
-{
-    Debug.Log("Idle and wandering...");
-
-    // If no enemy exists, find a random position to wander to
-    if (enemy == null)
-    {
-        Debug.Log("No enemy found. Wandering...");
-        Wander();
-        return;
+        switch (currentState)
+        {
+            case State.Idle:
+                IdleState();
+                break;
+            case State.Wandering:
+                WanderingState();
+                break;
+            case State.Chase:
+                ChaseState();
+                break;
+            case State.Attack:
+                AttackState();
+                break;
+            case State.Retreat:
+                RetreatState();
+                break;
+        }
     }
 
-    // Check for nearby enemies
-    float distanceToEnemy = Vector3.Distance(transform.position, enemy.position);
-    if (distanceToEnemy < detectionRange)
+    private void IdleState()
     {
-        Debug.Log("Enemy detected! Switching to Chase.");
-        currentState = State.Chase;
-    }
-}
+        Debug.Log("Idle...");
 
-private void Wander()
+        idleTimer += Time.deltaTime;
+
+        // Check for enemies
+        if (enemy != null && Vector3.Distance(transform.position, enemy.position) < detectionRange)
+        {
+            Debug.Log("Enemy detected! Switching to Chase.");
+            currentState = State.Chase;
+            return;
+        }
+
+        // Transition to Wandering after idle time
+        if (idleTimer >= idleToWanderTime)
+        {
+            Debug.Log("Idle time exceeded. Switching to Wandering.");
+            idleTimer = 0f; // Reset the timer
+            currentState = State.Wandering;
+        }
+    }
+
+    private void WanderingState()
 {
-    if (!agent.hasPath || agent.remainingDistance < 1f) // Only calculate a new destination if not moving
+    Debug.Log("Wandering...");
+
+    wanderTimer += Time.deltaTime;
+
+    // Randomize the time between movements
+    if (wanderTimer >= wanderCooldown)
     {
-        Vector3 randomDirection = Random.insideUnitSphere * 10f; // Radius of 10 units for wandering
-        randomDirection += transform.position; // Offset by the current position
+        wanderTimer = 0f; // Reset the timer
+        wanderCooldown = Random.Range(1f, 4f); // Randomize cooldown between 1 and 4 seconds
+
+        // Generate a random position within a random radius
+        float randomRadius = Random.Range(5f, 15f); // Randomize distance between 5 and 15 units
+        Vector3 randomDirection = Random.insideUnitSphere * randomRadius; // Use the random radius
+        randomDirection += transform.position;
 
         NavMeshHit hit;
-        if (NavMesh.SamplePosition(randomDirection, out hit, 10f, NavMesh.AllAreas))
+        if (NavMesh.SamplePosition(randomDirection, out hit, randomRadius, NavMesh.AllAreas))
         {
+            Debug.Log($"Wandering to: {hit.position} (radius: {randomRadius})");
             agent.SetDestination(hit.position); // Move to the new random position
-            Debug.Log($"Wandering to: {hit.position}");
         }
         else
         {
             Debug.LogWarning("Failed to find a valid random position for wandering.");
         }
     }
-}
 
+    // Check for nearby enemies while wandering
+    if (enemy != null && Vector3.Distance(transform.position, enemy.position) < detectionRange)
+    {
+        Debug.Log("Enemy detected while wandering! Switching to Chase.");
+        currentState = State.Chase;
+    }
+}
 
 
     private void ChaseState()
@@ -138,11 +156,9 @@ private void Wander()
             return;
         }
 
-        // Use GunScript to shoot
         gunScript.Shoot();
 
-        // Check for health threshold to retreat
-        if (attributes.health < attributes.GetHealth() * 0.2f) // Retreat if health < 20%
+        if (attributes.health < attributes.GetHealth() * 0.2f)
         {
             Debug.Log("Health is too low! Switching to Retreat.");
             currentState = State.Retreat;

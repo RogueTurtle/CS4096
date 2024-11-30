@@ -16,20 +16,22 @@ public class TempAIFSM : MonoBehaviour
     private float idleTimer = 0f; // Timer for idle to wander
     private float wanderTimer = 0f; // Timer for wandering
     private float wanderCooldown = 3f; // Default cooldown for wandering
-    private float attackCooldown = 1f; 
-    private float attackTimer = 0f; 
+    private float attackCooldown = 1f;
+    private float attackTimer = 0f;
 
     // References to other components
     private Health healthComponent;
     private GunScript gunScript;
     private SoldierAttributes attributes;
 
+    public bool enableDebugging = true; // Toggle for enabling/disabling debugging
+
     private void Start()
     {
         agent = GetComponent<NavMeshAgent>();
         if (agent == null)
         {
-            Debug.LogError("NavMeshAgent component is missing!");
+            LogError("NavMeshAgent component is missing!");
         }
 
         healthComponent = GetComponent<Health>();
@@ -44,7 +46,7 @@ public class TempAIFSM : MonoBehaviour
 
     private void Update()
     {
-        Debug.Log($"Current State: {currentState}");
+        Log($"Current State: {currentState}", false, "cyan");
 
         switch (currentState)
         {
@@ -68,71 +70,65 @@ public class TempAIFSM : MonoBehaviour
 
     private void IdleState()
     {
-        Debug.Log("Idle...");
+        Log("Idle...", false, "green");
 
         idleTimer += Time.deltaTime;
 
-        // Check for enemies
         if (enemy != null && Vector3.Distance(transform.position, enemy.position) < detectionRange)
         {
-            Debug.Log("Enemy detected! Switching to Chase.");
+            Log("Enemy detected! Switching to Chase.", false, "yellow");
             currentState = State.Chase;
             return;
         }
 
-        // Transition to Wandering after idle time
         if (idleTimer >= idleToWanderTime)
         {
-            Debug.Log("Idle time exceeded. Switching to Wandering.");
-            idleTimer = 0f; // Reset the timer
+            Log("Idle time exceeded. Switching to Wandering.", false, "green");
+            idleTimer = 0f;
             currentState = State.Wandering;
         }
     }
 
     private void WanderingState()
-{
-    Debug.Log("Wandering...");
-
-    wanderTimer += Time.deltaTime;
-
-    // Randomize the time between movements
-    if (wanderTimer >= wanderCooldown)
     {
-        wanderTimer = 0f; // Reset the timer
-        wanderCooldown = Random.Range(1f, 4f); // Randomize cooldown between 1 and 4 seconds
+        Log("Wandering...", false, "green");
 
-        // Generate a random position within a random radius
-        float randomRadius = Random.Range(5f, 15f); // Randomize distance between 5 and 15 units
-        Vector3 randomDirection = Random.insideUnitSphere * randomRadius; // Use the random radius
-        randomDirection += transform.position;
+        wanderTimer += Time.deltaTime;
 
-        NavMeshHit hit;
-        if (NavMesh.SamplePosition(randomDirection, out hit, randomRadius, NavMesh.AllAreas))
+        if (wanderTimer >= wanderCooldown)
         {
-            Debug.Log($"Wandering to: {hit.position} (radius: {randomRadius})");
-            agent.SetDestination(hit.position); // Move to the new random position
+            wanderTimer = 0f;
+            wanderCooldown = Random.Range(1f, 4f);
+
+            float randomRadius = Random.Range(5f, 15f);
+            Vector3 randomDirection = Random.insideUnitSphere * randomRadius + transform.position;
+
+            NavMeshHit hit;
+            if (NavMesh.SamplePosition(randomDirection, out hit, randomRadius, NavMesh.AllAreas))
+            {
+                Log($"Wandering to: {hit.position} (radius: {randomRadius})", true, "green");
+                agent.SetDestination(hit.position);
+            }
+            else
+            {
+                LogWarning("Failed to find a valid random position for wandering.", "orange");
+            }
         }
-        else
+
+        if (enemy != null && Vector3.Distance(transform.position, enemy.position) < detectionRange)
         {
-            Debug.LogWarning("Failed to find a valid random position for wandering.");
+            Log("Enemy detected while wandering! Switching to Chase.", false, "yellow");
+            currentState = State.Chase;
         }
     }
-
-    // Check for nearby enemies while wandering
-    if (enemy != null && Vector3.Distance(transform.position, enemy.position) < detectionRange)
-    {
-        Debug.Log("Enemy detected while wandering! Switching to Chase.");
-        currentState = State.Chase;
-    }
-}
 
     private void ChaseState()
     {
-        Debug.Log("Chasing...");
+        Log("Chasing...", false, "yellow");
 
         if (enemy == null)
         {
-            Debug.LogWarning("Enemy is missing! Switching to Idle.");
+            LogWarning("Enemy is missing! Switching to Idle.", "orange");
             currentState = State.Idle;
             return;
         }
@@ -141,69 +137,52 @@ public class TempAIFSM : MonoBehaviour
 
         if (Vector3.Distance(transform.position, enemy.position) <= attributes.range)
         {
-            Debug.Log("Enemy in attack range! Switching to Attack.");
+            Log("Enemy in attack range! Switching to Attack.", false, "red");
             currentState = State.Attack;
         }
     }
 
     private void AttackState()
-{
-    Debug.Log("Attacking...");
-
-    // Ensure the enemy still exists
-    if (enemy == null)
     {
-        Debug.LogWarning("Enemy is missing! Switching to Idle.");
-        currentState = State.Idle;
-        return;
+        Log("Attacking...", false, "red");
+
+        if (enemy == null)
+        {
+            LogWarning("Enemy is missing! Switching to Idle.", "orange");
+            currentState = State.Idle;
+            agent.isStopped = false;
+            return;
+        }
+
+        agent.isStopped = true;
+
+        Vector3 direction = (enemy.position - transform.position).normalized;
+        Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
+        transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
+
+        attackTimer += Time.deltaTime;
+        if (attackTimer >= attackCooldown)
+        {
+            attackTimer = 0f;
+            gunScript.Shoot();
+            Log("Attacking enemy!", false, "red");
+        }
+
+        if (attributes.health < attributes.GetHealth() * 0.2f)
+        {
+            Log("Health is too low! Switching to Retreat.", false, "blue");
+            agent.isStopped = false;
+            currentState = State.Retreat;
+        }
     }
-
-    // Stop movement during attack
-    agent.isStopped = true;
-
-    // Check if the enemy is out of range
-    float distanceToEnemy = Vector3.Distance(transform.position, enemy.position);
-    if (distanceToEnemy > attributes.range)
-    {
-        Debug.Log("Enemy out of range. Switching to Chase.");
-        agent.isStopped = false; // Allow movement again
-        currentState = State.Chase;
-        return;
-    }
-
-    // Rotate to face the enemy
-    Vector3 direction = (enemy.position - transform.position).normalized;
-    Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
-    transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
-
-    // Handle attack cooldown
-    attackTimer += Time.deltaTime;
-    if (attackTimer >= attackCooldown)
-    {
-        attackTimer = 0f; // Reset the timer
-
-        // Perform attack using the GunScript
-        gunScript.Shoot();
-
-        Debug.Log("Attacking enemy!");
-    }
-
-    // Check if health is too low
-    if (attributes.health < attributes.GetHealth() * 0.2f) // Retreat if health < 20%
-    {
-        Debug.Log("Health is too low! Switching to Retreat.");
-        agent.isStopped = false; // Allow movement again
-        currentState = State.Retreat;
-    }
-}
 
     private void RetreatState()
     {
-        Debug.Log("Retreating...");
+        Log("Retreating...", false, "blue");
 
         if (retreatPoint == null)
         {
-            Debug.LogError("No retreat point assigned! Switching to Idle.");
+            LogError("No retreat point assigned! Switching to Idle.", "magenta");
             currentState = State.Idle;
             return;
         }
@@ -212,8 +191,30 @@ public class TempAIFSM : MonoBehaviour
 
         if (Vector3.Distance(transform.position, retreatPoint.position) < 2f)
         {
-            Debug.Log("Reached retreat point. Switching to Idle.");
+            Log("Reached retreat point. Switching to Idle.", false, "blue");
             currentState = State.Idle;
         }
+    }
+
+    // Debugging Helpers
+    private void Log(string message, bool limitFrequency = false, string color = "white")
+    {
+        if (!enableDebugging) return;
+
+        Debug.Log($"<color={color}>{gameObject.name}: {message}</color>");
+    }
+
+    private void LogWarning(string message, string color = "orange")
+    {
+        if (!enableDebugging) return;
+
+        Debug.LogWarning($"<color={color}>{gameObject.name}: {message}</color>");
+    }
+
+    private void LogError(string message, string color = "magenta")
+    {
+        if (!enableDebugging) return;
+
+        Debug.LogError($"<color={color}>{gameObject.name}: {message}</color>");
     }
 }

@@ -39,46 +39,73 @@ public class TempAIFSM : MonoBehaviour
     }
 
     private void Update()
+{
+    // FSM logic
+    switch (currentState)
     {
-        Debug.Log($"Current State: {currentState}");
+        case State.Idle:
+            IdleState();
+            break;
+        case State.Chase:
+            ChaseState();
+            break;
+        case State.Attack:
+            AttackState();
+            break;
+        case State.Retreat:
+            RetreatState();
+            break;
+    }
+}
 
-        // FSM logic
-        switch (currentState)
-        {
-            case State.Idle:
-                IdleState();
-                break;
-            case State.Chase:
-                ChaseState();
-                break;
-            case State.Attack:
-                AttackState();
-                break;
-            case State.Retreat:
-                RetreatState();
-                break;
-        }
+private bool AllEnemiesDefeated()
+{
+    GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+    return enemies.Length == 0;
+}
+
+  private void IdleState()
+{
+    Debug.Log("Idle and wandering...");
+
+    // If no enemy exists, find a random position to wander to
+    if (enemy == null)
+    {
+        Debug.Log("No enemy found. Wandering...");
+        Wander();
+        return;
     }
 
-    private void IdleState()
+    // Check for nearby enemies
+    float distanceToEnemy = Vector3.Distance(transform.position, enemy.position);
+    if (distanceToEnemy < detectionRange)
     {
-        Debug.Log("Idle...");
+        Debug.Log("Enemy detected! Switching to Chase.");
+        currentState = State.Chase;
+    }
+}
 
-        if (enemy == null)
+private void Wander()
+{
+    if (!agent.hasPath || agent.remainingDistance < 1f) // Only calculate a new destination if not moving
+    {
+        Vector3 randomDirection = Random.insideUnitSphere * 10f; // Radius of 10 units for wandering
+        randomDirection += transform.position; // Offset by the current position
+
+        NavMeshHit hit;
+        if (NavMesh.SamplePosition(randomDirection, out hit, 10f, NavMesh.AllAreas))
         {
-            Debug.LogWarning("No enemy assigned!");
-            return;
+            agent.SetDestination(hit.position); // Move to the new random position
+            Debug.Log($"Wandering to: {hit.position}");
         }
-
-        float distanceToEnemy = Vector3.Distance(transform.position, enemy.position);
-        Debug.Log($"Distance to enemy: {distanceToEnemy}");
-
-        if (distanceToEnemy < detectionRange)
+        else
         {
-            Debug.Log("Enemy detected! Switching to Chase.");
-            currentState = State.Chase;
+            Debug.LogWarning("Failed to find a valid random position for wandering.");
         }
     }
+}
+
+
 
     private void ChaseState()
     {

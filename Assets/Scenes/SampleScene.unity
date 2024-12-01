@@ -122,11 +122,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 23800000, guid: b1d784c445c72d14989be8b9811e18f6, type: 2}
---- !u!1 &39789998 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4669306145473971247, guid: d7a35ba155bfb1041b38fe83c8e2a53e, type: 3}
-  m_PrefabInstance: {fileID: 1272502189}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &62037152
 GameObject:
   m_ObjectHideFlags: 0
@@ -458,11 +453,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
---- !u!1 &710551780 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 173023412462946437, guid: 63610d58edd23c74288d556482952b84, type: 3}
-  m_PrefabInstance: {fileID: 691552011}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &899818526
 GameObject:
   m_ObjectHideFlags: 0
@@ -1133,10 +1123,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b673df2698cc454f8ac0ed621080ac7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  redRangedPrefab: {fileID: 0}
-  redMeleePrefab: {fileID: 39789998}
-  blueRangedPrefab: {fileID: 0}
-  blueMeleePrefab: {fileID: 710551780}
+  redRangedPrefab: {fileID: 4669306145473971247, guid: 67e9fa9f658c8854c94c80eb73251ffb, type: 3}
+  redMeleePrefab: {fileID: 4669306145473971247, guid: d7a35ba155bfb1041b38fe83c8e2a53e, type: 3}
+  blueRangedPrefab: {fileID: 173023412462946437, guid: 111f31e93e03486489e7010d36c0b86e, type: 3}
+  blueMeleePrefab: {fileID: 173023412462946437, guid: 63610d58edd23c74288d556482952b84, type: 3}
   redSpawnPoints:
   - {fileID: 1515402460}
   - {fileID: 199741606}

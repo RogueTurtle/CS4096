@@ -11,14 +11,18 @@ public class Health : MonoBehaviour
     {
         // Get reference to the RagdollController
         ragdollController = GetComponent<RagdollController>();
+
+        // Sync health with randomized health from SoldierAttributes
+        var attributes = GetComponent<SoldierAttributes>();
+        if (attributes != null)
+        {
+            health = attributes.health; // Use the randomized health
+        }
     }
 
-    public bool IsRagdolling
-    {
-        get { return isRagdolling; }
-    }
+    public bool IsRagdolling => isRagdolling;
 
-    public void TakeDamage(float damage)
+    public void TakeDamage(float damage, GameObject attacker = null)
     {
         // Reduce health
         health -= damage;
@@ -27,20 +31,37 @@ public class Health : MonoBehaviour
         // Check if health is depleted
         if (health <= 0)
         {
-            Die();
+            Die(attacker);
         }
     }
 
-    public void Die()
-{
-    Debug.Log($"{gameObject.name} is dead!");
-
-    // Trigger ragdoll and destroy
-    isRagdolling = true;
-    if (ragdollController != null)
+    private void Die(GameObject attacker)
     {
-        ragdollController.ActivateRagdoll();
+        Debug.Log($"{gameObject.name} has died!");
+        isRagdolling = true; // Mark as ragdoll
+
+        // Notify the attacker using OnKill
+        if (attacker != null)
+        {
+            var attackerAttributes = attacker.GetComponent<SoldierAttributes>();
+            if (attackerAttributes != null)
+            {
+                OnKill(attackerAttributes);
+            }
+        }
+
+        // Activate the "ragdoll" physics
+        if (ragdollController != null)
+        {
+            ragdollController.ActivateRagdoll();
+        }
+
+        // Destroy the object after a delay
+        Destroy(gameObject, destroyDelay);
     }
-    Destroy(gameObject, destroyDelay);
-}
+
+    private void OnKill(SoldierAttributes attackerAttributes)
+    {
+        Debug.Log($"{attackerAttributes.gameObject.name} killed {gameObject.name}!");
+    }
 }

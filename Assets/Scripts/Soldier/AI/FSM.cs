@@ -117,58 +117,98 @@ public class TempAIFSM : MonoBehaviour
         }
     }
 
-    private void ChaseState()
+   private void ChaseState()
+{
+    Log("Chasing...", false, "yellow");
+
+    // Continuously validate the enemy
+    if (enemy == null || enemy.GetComponent<Health>() == null || enemy.GetComponent<Health>().health <= 0)
     {
+        LogWarning("Current enemy is invalid or dead. Finding a new target.", "orange");
+        enemy = FindClosestEnemy();
         if (enemy == null)
         {
-            enemy = FindClosestEnemy();
-            if (enemy == null)
-            {
-                currentState = State.Idle;
-                return;
-            }
-        }
-
-        agent.SetDestination(enemy.position);
-
-        if (Vector3.Distance(transform.position, enemy.position) <= attributes.range)
-        {
-            currentState = State.Attack;
+            Log("No valid enemies found. Switching to Idle.", false, "orange");
+            currentState = State.Idle;
+            return;
         }
     }
 
-    private void AttackState()
+    // Update the agent's destination to the enemy's current position
+    agent.SetDestination(enemy.position);
+
+    // Check if the enemy is within attack range
+    float distanceToEnemy = Vector3.Distance(transform.position, enemy.position);
+    if (distanceToEnemy <= attributes.range)
     {
-        if (enemy == null || enemy.GetComponent<Health>() == null || enemy.GetComponent<Health>().IsRagdolling || enemy.GetComponent<Health>().health <= 0)
+        Log("Enemy in range! Switching to Attack.", false, "red");
+        currentState = State.Attack;
+    }
+    else
+    {
+        Log($"Chasing enemy at {enemy.position}. Distance: {distanceToEnemy}", false, "yellow");
+    }
+}
+
+
+private void AttackState()
+{
+    Log("Attacking...", false, "red");
+
+    // Validate the enemy
+    if (enemy == null || enemy.GetComponent<Health>() == null || enemy.GetComponent<Health>().health <= 0)
+    {
+        LogWarning("Enemy is invalid or dead. Searching for a new target.", "orange");
+        enemy = FindClosestEnemy();
+        if (enemy == null)
         {
-            enemy = FindClosestEnemy();
-            if (enemy == null)
-            {
-                agent.isStopped = false;
-                currentState = State.Idle;
-                return;
-            }
+            Log("No valid enemies found. Switching to Idle.", false, "orange");
+            agent.isStopped = false;
+            currentState = State.Idle;
+            return;
         }
+    }
 
-        agent.isStopped = true;
+    float distanceToEnemy = Vector3.Distance(transform.position, enemy.position);
 
-        Vector3 direction = (enemy.position - transform.position).normalized;
-        Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
-        transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
-
+    // If the unit is a melee unit
+    if (GetComponent<MeleeAttackScript>() != null)
+    {
+        // If out of melee range, move toward the enemy
+        if (distanceToEnemy > attributes.range)
+        {
+            Log($"Enemy out of melee range. Moving closer. Distance: {distanceToEnemy}", false, "yellow");
+            agent.isStopped = false; // Ensure movement is enabled
+            agent.SetDestination(enemy.position); // Update destination to follow the enemy
+        }
+        else
+        {
+            // If within range, stop moving and attack
+            Log($"Enemy in melee range. Attacking now. Distance: {distanceToEnemy}", false, "red");
+            agent.isStopped = true; // Stop movement
+            GetComponent<MeleeAttackScript>().Attack(enemy); // Perform melee attack
+        }
+    }
+    else if (gunScript != null) // For ranged units
+    {
+        agent.isStopped = true; // Stop moving for ranged units
         attackTimer += Time.deltaTime;
         if (attackTimer >= attackCooldown)
         {
             attackTimer = 0f;
             gunScript.Shoot();
-        }
-
-        if (attributes.health < attributes.GetHealth() * 0.2f)
-        {
-            agent.isStopped = false;
-            currentState = State.Retreat;
+            Log("Attacking enemy with ranged weapon!", false, "red");
         }
     }
+
+    // Retreat if health is low
+    if (attributes.health < attributes.GetHealth() * 0.2f)
+    {
+        Log("Health is too low! Switching to Retreat.", false, "blue");
+        agent.isStopped = false;
+        currentState = State.Retreat;
+    }
+}
 
     private void RetreatState()
     {
@@ -224,9 +264,22 @@ public class TempAIFSM : MonoBehaviour
         return Random.value < 0.5f; // 50% chance to attempt focus fire
     }
 
-    private void Log(string message, bool limitFrequency = false, string color = "white")
-    {
-        if (!enableDebugging) return;
-        Debug.Log($"<color={color}>{gameObject.name}: {message}</color>");
-    }
+   private void Log(string message, bool limitFrequency = false, string color = "white")
+{
+    if (!enableDebugging) return;
+    Debug.Log($"<color={color}>{gameObject.name}: {message}</color>");
+}
+
+private void LogWarning(string message, string color = "orange")
+{
+    if (!enableDebugging) return;
+    Debug.LogWarning($"<color={color}>{gameObject.name}: {message}</color>");
+}
+
+private void LogError(string message, string color = "magenta")
+{
+    if (!enableDebugging) return;
+    Debug.LogError($"<color={color}>{gameObject.name}: {message}</color>");
+}
+
 }

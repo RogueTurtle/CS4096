@@ -9,8 +9,7 @@ public class SoldierAttributes : MonoBehaviour
     public float baseSpeed = 10f;
     public float baseRange = 50f;
     public float baseMorale = 100f;
-
-    // Random stats for a bit of variation
+    public bool isMelee = false;
 
     // Actual randomized stats
     [HideInInspector] public float health;

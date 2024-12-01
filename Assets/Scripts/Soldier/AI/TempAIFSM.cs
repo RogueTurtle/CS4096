@@ -1,8 +1,8 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-public class TempAIFSM : MonoBehaviour
-{
+public class TempAIFSM : MonoBehaviour {
+
     public enum State { Idle, Wandering, Chase, Attack, Retreat }
     public State currentState = State.Idle;
 
@@ -13,8 +13,8 @@ public class TempAIFSM : MonoBehaviour
     public float detectionRange = 10f;
     public float idleToWanderTime = 3f; // Time to wait in Idle before switching to Wandering
 
-    private float idleTimer = 0f; // Timer for idle to wander
-    private float wanderTimer = 0f; // Timer for wandering
+    private float idleTimer = 0f; 
+    private float wanderTimer = 0f;
     private float wanderCooldown = 3f; // Default cooldown for wandering
     private float attackCooldown = 1f;
     private float attackTimer = 0f;
@@ -74,6 +74,11 @@ public class TempAIFSM : MonoBehaviour
 
         idleTimer += Time.deltaTime;
 
+        if (enemy == null)
+        {
+            enemy = FindClosestEnemy();
+        }
+
         if (enemy != null && Vector3.Distance(transform.position, enemy.position) < detectionRange)
         {
             Log("Enemy detected! Switching to Chase.", false, "yellow");
@@ -115,6 +120,11 @@ public class TempAIFSM : MonoBehaviour
             }
         }
 
+        if (enemy == null)
+        {
+            enemy = FindClosestEnemy();
+        }
+
         if (enemy != null && Vector3.Distance(transform.position, enemy.position) < detectionRange)
         {
             Log("Enemy detected while wandering! Switching to Chase.", false, "yellow");
@@ -128,9 +138,13 @@ public class TempAIFSM : MonoBehaviour
 
         if (enemy == null)
         {
-            LogWarning("Enemy is missing! Switching to Idle.", "orange");
-            currentState = State.Idle;
-            return;
+            enemy = FindClosestEnemy();
+            if (enemy == null)
+            {
+                LogWarning("No enemies found! Switching to Idle.", "orange");
+                currentState = State.Idle;
+                return;
+            }
         }
 
         agent.SetDestination(enemy.position);
@@ -146,12 +160,17 @@ public class TempAIFSM : MonoBehaviour
     {
         Log("Attacking...", false, "red");
 
-        if (enemy == null)
+        if (enemy == null || enemy.GetComponent<Health>() == null || enemy.GetComponent<Health>().health <= 0)
         {
-            LogWarning("Enemy is missing! Switching to Idle.", "orange");
-            currentState = State.Idle;
-            agent.isStopped = false;
-            return;
+            LogWarning("Enemy is gone! Finding a new target.", "orange");
+            enemy = FindClosestEnemy();
+            if (enemy == null)
+            {
+                Log("No enemies available. Switching to Idle.", false, "orange");
+                agent.isStopped = false;
+                currentState = State.Idle;
+                return;
+            }
         }
 
         agent.isStopped = true;
@@ -194,6 +213,27 @@ public class TempAIFSM : MonoBehaviour
             Log("Reached retreat point. Switching to Idle.", false, "blue");
             currentState = State.Idle;
         }
+    }
+
+    private Transform FindClosestEnemy()
+    {
+        string opposingTeamTag = gameObject.tag == "Team1" ? "Team2" : "Team1";
+        GameObject[] enemies = GameObject.FindGameObjectsWithTag(opposingTeamTag);
+
+        Transform closestEnemy = null;
+        float closestDistance = Mathf.Infinity;
+
+        foreach (GameObject enemyObj in enemies)
+        {
+            float distance = Vector3.Distance(transform.position, enemyObj.transform.position);
+            if (distance < closestDistance)
+            {
+                closestDistance = distance;
+                closestEnemy = enemyObj.transform;
+            }
+        }
+
+        return closestEnemy;
     }
 
     // Debugging Helpers

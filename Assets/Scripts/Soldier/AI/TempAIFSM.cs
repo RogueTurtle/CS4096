@@ -24,7 +24,7 @@ public class TempAIFSM : MonoBehaviour
     private GunScript gunScript;
     private SoldierAttributes attributes;
 
-    public bool enableDebugging = true; // Toggle for enabling/disabling debugging
+    private bool enableDebugging = false; // Toggle for enabling/disabling debugging
 
     private void Start()
     {
@@ -95,10 +95,10 @@ public class TempAIFSM : MonoBehaviour
 
         wanderTimer += Time.deltaTime;
 
-        if (wanderTimer >= wanderCooldown)
+        if (wanderTimer >= wanderCooldown && transform.parent == null) //if soldier is not leader don't run the code to stop soldier wandering off. Then uses FollowLeader script instead 
         {
             wanderTimer = 0f;
-            wanderCooldown = Random.Range(1f, 4f);
+            wanderCooldown = Random.Range(1f, 10f);
 
             float randomRadius = Random.Range(5f, 15f);
             Vector3 randomDirection = Random.insideUnitSphere * randomRadius + transform.position;

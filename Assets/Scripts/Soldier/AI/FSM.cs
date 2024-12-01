@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-public class TempAIFSM : MonoBehaviour {
+public class FSM : MonoBehaviour {
 
     public enum State { Idle, Wandering, Chase, Attack, Retreat }
     public State currentState = State.Idle;
@@ -216,25 +216,33 @@ public class TempAIFSM : MonoBehaviour {
     }
 
     private Transform FindClosestEnemy()
+{
+    string opposingTeamTag = gameObject.tag == "Team1" ? "Team2" : "Team1";
+    GameObject[] enemies = GameObject.FindGameObjectsWithTag(opposingTeamTag);
+
+    Transform closestEnemy = null;
+    float closestDistance = Mathf.Infinity;
+
+    foreach (GameObject enemyObj in enemies)
     {
-        string opposingTeamTag = gameObject.tag == "Team1" ? "Team2" : "Team1";
-        GameObject[] enemies = GameObject.FindGameObjectsWithTag(opposingTeamTag);
-
-        Transform closestEnemy = null;
-        float closestDistance = Mathf.Infinity;
-
-        foreach (GameObject enemyObj in enemies)
+        // Skip enemies that are ragdolling
+        Health enemyHealth = enemyObj.GetComponent<Health>();
+        if (enemyHealth != null && enemyHealth.IsRagdolling)
         {
-            float distance = Vector3.Distance(transform.position, enemyObj.transform.position);
-            if (distance < closestDistance)
-            {
-                closestDistance = distance;
-                closestEnemy = enemyObj.transform;
-            }
+            continue; // Skip this enemy
         }
 
-        return closestEnemy;
+        float distance = Vector3.Distance(transform.position, enemyObj.transform.position);
+        if (distance < closestDistance)
+        {
+            closestDistance = distance;
+            closestEnemy = enemyObj.transform;
+        }
     }
+
+    return closestEnemy;
+}
+
 
     // Debugging Helpers
     private void Log(string message, bool limitFrequency = false, string color = "white")

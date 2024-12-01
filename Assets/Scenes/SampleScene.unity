@@ -196,11 +196,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 05e3f98660dbbfa439b7c9903c23d855, type: 3}
---- !u!1 &455487169 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 05e3f98660dbbfa439b7c9903c23d855, type: 3}
-  m_PrefabInstance: {fileID: 301770388}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &455487170 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 05e3f98660dbbfa439b7c9903c23d855, type: 3}
@@ -224,6 +219,8 @@ GameObject:
   - component: {fileID: 467625795}
   - component: {fileID: 467625796}
   - component: {fileID: 467625797}
+  - component: {fileID: 467625799}
+  - component: {fileID: 467625798}
   m_Layer: 0
   m_Name: Blue Man
   m_TagString: Enemy
@@ -399,6 +396,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   health: 100
+  destroyDelay: 5
 --- !u!114 &467625796
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -417,6 +415,7 @@ MonoBehaviour:
   agent: {fileID: 0}
   detectionRange: 25
   idleToWanderTime: 3
+  enableDebugging: 1
 --- !u!114 &467625797
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -429,6 +428,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 397f5d3e81964fe41921c6837a270025, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &467625798
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 467625787}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1a14fcbb66490243be3fc67e0a9375c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damage: 10
+  range: 50
+  muzzleFlashPrefab: {fileID: 4249380019712659002, guid: 04cff048d27547244bc8063086095b48, type: 3}
+  impactEffectPrefab: {fileID: 0}
+  gunBarrel: {fileID: 2102400156}
+--- !u!114 &467625799
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 467625787}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fddcfd47561a83649836d2353f57da7a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ground:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!1 &582842293
 GameObject:
   m_ObjectHideFlags: 0
@@ -691,7 +722,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: f033ee9af03ed4a41857238521049377, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -732,37 +763,6 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 57.7, y: 4.42, z: 143.9}
   m_LocalScale: {x: 17.64264, y: 1, z: 15.627751}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &923496683
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 923496684}
-  m_Layer: 0
-  m_Name: VP
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &923496684
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 923496683}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 128, y: 0, z: 128}
-  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -1065,7 +1065,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   damage: 1
   range: 20
-  soldier: {fileID: 455487169}
+  muzzleFlashPrefab: {fileID: 4249380019712659002, guid: 04cff048d27547244bc8063086095b48, type: 3}
+  impactEffectPrefab: {fileID: 0}
+  gunBarrel: {fileID: 455487170}
 --- !u!114 &2008843780
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1079,6 +1081,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   health: 0
+  destroyDelay: 5
 --- !u!114 &2008843786
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1109,6 +1112,7 @@ MonoBehaviour:
   agent: {fileID: 0}
   detectionRange: 25
   idleToWanderTime: 3
+  enableDebugging: 1
 --- !u!4 &2102400156 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 05e3f98660dbbfa439b7c9903c23d855, type: 3}
@@ -1314,7 +1318,6 @@ SceneRoots:
   - {fileID: 705507995}
   - {fileID: 1237294342}
   - {fileID: 4673605692963994262}
-  - {fileID: 923496684}
   - {fileID: 467625792}
   - {fileID: 899818530}
   - {fileID: 1315822043}

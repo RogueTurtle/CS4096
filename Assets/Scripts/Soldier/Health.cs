@@ -32,17 +32,15 @@ public class Health : MonoBehaviour
     }
 
     public void Die()
+{
+    Debug.Log($"{gameObject.name} is dead!");
+
+    // Trigger ragdoll and destroy
+    isRagdolling = true;
+    if (ragdollController != null)
     {
-        Debug.Log($"{gameObject.name} is dead!");
-        isRagdolling = true; // Set ragdolling status
-
-        // Activate the "ragdoll" physics
-        if (ragdollController != null)
-        {
-            ragdollController.ActivateRagdoll();
-        }
-
-        // Destroy the object after a delay
-        Destroy(gameObject, destroyDelay);
+        ragdollController.ActivateRagdoll();
     }
+    Destroy(gameObject, destroyDelay);
+}
 }

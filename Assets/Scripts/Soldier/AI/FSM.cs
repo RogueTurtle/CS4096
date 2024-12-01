@@ -1,8 +1,8 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-public class FSM : MonoBehaviour {
-
+public class TempAIFSM : MonoBehaviour
+{
     public enum State { Idle, Wandering, Chase, Attack, Retreat }
     public State currentState = State.Idle;
 
@@ -11,29 +11,26 @@ public class FSM : MonoBehaviour {
     public NavMeshAgent agent;
 
     public float detectionRange = 10f;
-    public float idleToWanderTime = 3f; // Time to wait in Idle before switching to Wandering
+    public float idleToWanderTime = 3f;
 
-    private float idleTimer = 0f; 
+    private float idleTimer = 0f;
     private float wanderTimer = 0f;
-    private float wanderCooldown = 3f; // Default cooldown for wandering
+    private float wanderCooldown = 3f;
     private float attackCooldown = 1f;
     private float attackTimer = 0f;
 
-    // References to other components
     private Health healthComponent;
     private GunScript gunScript;
     private SoldierAttributes attributes;
 
-    public bool enableDebugging = true; // Toggle for enabling/disabling debugging
+    public bool enableDebugging = true;
+
+    // Shared focus fire target
+    private static Transform FocusedTarget;
 
     private void Start()
     {
         agent = GetComponent<NavMeshAgent>();
-        if (agent == null)
-        {
-            LogError("NavMeshAgent component is missing!");
-        }
-
         healthComponent = GetComponent<Health>();
         gunScript = GetComponent<GunScript>();
         attributes = GetComponent<SoldierAttributes>();
@@ -70,8 +67,6 @@ public class FSM : MonoBehaviour {
 
     private void IdleState()
     {
-        Log("Idle...", false, "green");
-
         idleTimer += Time.deltaTime;
 
         if (enemy == null)
@@ -81,14 +76,12 @@ public class FSM : MonoBehaviour {
 
         if (enemy != null && Vector3.Distance(transform.position, enemy.position) < detectionRange)
         {
-            Log("Enemy detected! Switching to Chase.", false, "yellow");
             currentState = State.Chase;
             return;
         }
 
         if (idleTimer >= idleToWanderTime)
         {
-            Log("Idle time exceeded. Switching to Wandering.", false, "green");
             idleTimer = 0f;
             currentState = State.Wandering;
         }
@@ -96,8 +89,6 @@ public class FSM : MonoBehaviour {
 
     private void WanderingState()
     {
-        Log("Wandering...", false, "green");
-
         wanderTimer += Time.deltaTime;
 
         if (wanderTimer >= wanderCooldown)
@@ -111,12 +102,7 @@ public class FSM : MonoBehaviour {
             NavMeshHit hit;
             if (NavMesh.SamplePosition(randomDirection, out hit, randomRadius, NavMesh.AllAreas))
             {
-                Log($"Wandering to: {hit.position} (radius: {randomRadius})", true, "green");
                 agent.SetDestination(hit.position);
-            }
-            else
-            {
-                LogWarning("Failed to find a valid random position for wandering.", "orange");
             }
         }
 
@@ -127,21 +113,17 @@ public class FSM : MonoBehaviour {
 
         if (enemy != null && Vector3.Distance(transform.position, enemy.position) < detectionRange)
         {
-            Log("Enemy detected while wandering! Switching to Chase.", false, "yellow");
             currentState = State.Chase;
         }
     }
 
     private void ChaseState()
     {
-        Log("Chasing...", false, "yellow");
-
         if (enemy == null)
         {
             enemy = FindClosestEnemy();
             if (enemy == null)
             {
-                LogWarning("No enemies found! Switching to Idle.", "orange");
                 currentState = State.Idle;
                 return;
             }
@@ -151,22 +133,17 @@ public class FSM : MonoBehaviour {
 
         if (Vector3.Distance(transform.position, enemy.position) <= attributes.range)
         {
-            Log("Enemy in attack range! Switching to Attack.", false, "red");
             currentState = State.Attack;
         }
     }
 
     private void AttackState()
     {
-        Log("Attacking...", false, "red");
-
-        if (enemy == null || enemy.GetComponent<Health>() == null || enemy.GetComponent<Health>().health <= 0)
+        if (enemy == null || enemy.GetComponent<Health>() == null || enemy.GetComponent<Health>().IsRagdolling || enemy.GetComponent<Health>().health <= 0)
         {
-            LogWarning("Enemy is gone! Finding a new target.", "orange");
             enemy = FindClosestEnemy();
             if (enemy == null)
             {
-                Log("No enemies available. Switching to Idle.", false, "orange");
                 agent.isStopped = false;
                 currentState = State.Idle;
                 return;
@@ -184,12 +161,10 @@ public class FSM : MonoBehaviour {
         {
             attackTimer = 0f;
             gunScript.Shoot();
-            Log("Attacking enemy!", false, "red");
         }
 
         if (attributes.health < attributes.GetHealth() * 0.2f)
         {
-            Log("Health is too low! Switching to Retreat.", false, "blue");
             agent.isStopped = false;
             currentState = State.Retreat;
         }
@@ -197,11 +172,8 @@ public class FSM : MonoBehaviour {
 
     private void RetreatState()
     {
-        Log("Retreating...", false, "blue");
-
         if (retreatPoint == null)
         {
-            LogError("No retreat point assigned! Switching to Idle.", "magenta");
             currentState = State.Idle;
             return;
         }
@@ -210,59 +182,51 @@ public class FSM : MonoBehaviour {
 
         if (Vector3.Distance(transform.position, retreatPoint.position) < 2f)
         {
-            Log("Reached retreat point. Switching to Idle.", false, "blue");
             currentState = State.Idle;
         }
     }
 
     private Transform FindClosestEnemy()
-{
-    string opposingTeamTag = gameObject.tag == "Team1" ? "Team2" : "Team1";
-    GameObject[] enemies = GameObject.FindGameObjectsWithTag(opposingTeamTag);
-
-    Transform closestEnemy = null;
-    float closestDistance = Mathf.Infinity;
-
-    foreach (GameObject enemyObj in enemies)
     {
-        // Skip enemies that are ragdolling
-        Health enemyHealth = enemyObj.GetComponent<Health>();
-        if (enemyHealth != null && enemyHealth.IsRagdolling)
+        string opposingTeamTag = gameObject.tag == "Team1" ? "Team2" : "Team1";
+        GameObject[] enemies = GameObject.FindGameObjectsWithTag(opposingTeamTag);
+
+        Transform closestEnemy = null;
+        float closestDistance = Mathf.Infinity;
+
+        if (ShouldFocusFire() && FocusedTarget != null && !FocusedTarget.GetComponent<Health>().IsRagdolling)
         {
-            continue; // Skip this enemy
+            return FocusedTarget;
         }
 
-        float distance = Vector3.Distance(transform.position, enemyObj.transform.position);
-        if (distance < closestDistance)
+        foreach (GameObject enemyObj in enemies)
         {
-            closestDistance = distance;
-            closestEnemy = enemyObj.transform;
+            if (enemyObj.GetComponent<Health>()?.IsRagdolling == true) continue;
+
+            float distance = Vector3.Distance(transform.position, enemyObj.transform.position);
+            if (distance < closestDistance)
+            {
+                closestDistance = distance;
+                closestEnemy = enemyObj.transform;
+            }
         }
+
+        if (closestEnemy != null && Random.value < 0.3f) // 30% chance to focus fire
+        {
+            FocusedTarget = closestEnemy;
+        }
+
+        return closestEnemy;
     }
 
-    return closestEnemy;
-}
+    private bool ShouldFocusFire()
+    {
+        return Random.value < 0.5f; // 50% chance to attempt focus fire
+    }
 
-
-    // Debugging Helpers
     private void Log(string message, bool limitFrequency = false, string color = "white")
     {
         if (!enableDebugging) return;
-
         Debug.Log($"<color={color}>{gameObject.name}: {message}</color>");
-    }
-
-    private void LogWarning(string message, string color = "orange")
-    {
-        if (!enableDebugging) return;
-
-        Debug.LogWarning($"<color={color}>{gameObject.name}: {message}</color>");
-    }
-
-    private void LogError(string message, string color = "magenta")
-    {
-        if (!enableDebugging) return;
-
-        Debug.LogError($"<color={color}>{gameObject.name}: {message}</color>");
     }
 }

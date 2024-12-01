@@ -3,6 +3,7 @@ using UnityEngine;
 public class Health : MonoBehaviour
 {
     public float health = 100f; // Initial health
+    public float destroyDelay = 5f; // Time to destroy the object after death
     private RagdollController ragdollController;
 
     private void Start()
@@ -24,20 +25,17 @@ public class Health : MonoBehaviour
         }
     }
 
-public float destroyDelay = 5f; // Time to destroy the object after death
-
-public void Die()
-{
-    Debug.Log($"{gameObject.name} is dead!");
-
-    // Activate the "ragdoll" physics
-    if (ragdollController != null)
+    public void Die()
     {
-        ragdollController.ActivateRagdoll();
+        Debug.Log($"{gameObject.name} is dead!");
+
+        // Activate the "ragdoll" physics
+        if (ragdollController != null)
+        {
+            ragdollController.ActivateRagdoll();
+        }
+
+        // Destroy the object after a delay
+        Destroy(gameObject, destroyDelay);
     }
-
-    // Destroy the object after a delay
-    Destroy(gameObject, destroyDelay);
-}
-
 }

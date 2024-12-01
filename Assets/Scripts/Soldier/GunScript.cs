@@ -4,6 +4,12 @@ public class GunScript : MonoBehaviour
 {
     public float damage = 10;
     public float range = 50f;
+
+    // Particle effect fields
+    public GameObject muzzleFlashPrefab; // Assign this in the Inspector
+    public GameObject impactEffectPrefab; // Assign this in the Inspector
+    public Transform gunBarrel; // Assign this as the position where the muzzle flash will appear
+
     SoldierAttributes soldierAttributes;
 
     private void Start()
@@ -18,6 +24,13 @@ public class GunScript : MonoBehaviour
 
     public void Shoot()
     {
+        // Spawn the muzzle flash
+        if (muzzleFlashPrefab != null && gunBarrel != null)
+        {
+            GameObject flash = Instantiate(muzzleFlashPrefab, gunBarrel.position, gunBarrel.rotation);
+            Destroy(flash, 0.5f); // Destroy the flash after 0.5 seconds
+        }
+
         RaycastHit hit;
 
         // Use the GameObject's position and forward direction
@@ -36,6 +49,13 @@ public class GunScript : MonoBehaviour
                 {
                     Debug.Log($"{hit.transform.name} has been killed.");
                 }
+            }
+
+            // Spawn the impact effect at the hit point
+            if (impactEffectPrefab != null)
+            {
+                GameObject impact = Instantiate(impactEffectPrefab, hit.point, Quaternion.LookRotation(hit.normal));
+                Destroy(impact, 2f); // Destroy the impact effect after 2 seconds
             }
         }
         else

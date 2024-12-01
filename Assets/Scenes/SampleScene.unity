@@ -329,12 +329,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   leader: {fileID: 1498515308}
   followDistance: 10
-  soldierNumber: 1
-  formationOffsets:
+  isFighting: 0
+  isPatrolling: 0
+  isIdle: 1
+  isWandering: 0
+  isChasing: 0
+  wanderingFormation:
   - {x: -2, y: 0, z: 2}
   - {x: 2, y: 0, z: 2}
   - {x: -2, y: 0, z: -2}
   - {x: 2, y: 0, z: -2}
+  attackFormation:
+  - {x: -20, y: 0, z: -10}
+  - {x: -10, y: 0, z: -20}
+  - {x: 10, y: 0, z: -20}
+  - {x: 20, y: 0, z: -10}
 --- !u!54 &363642140
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1134,12 +1143,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   leader: {fileID: 1498515308}
   followDistance: 10
-  soldierNumber: 2
-  formationOffsets:
+  isFighting: 0
+  isPatrolling: 0
+  isIdle: 1
+  isWandering: 0
+  isChasing: 0
+  wanderingFormation:
   - {x: -2, y: 0, z: 2}
   - {x: 2, y: 0, z: 2}
   - {x: -2, y: 0, z: -2}
   - {x: 2, y: 0, z: -2}
+  attackFormation:
+  - {x: -20, y: 0, z: -10}
+  - {x: -10, y: 0, z: -20}
+  - {x: 10, y: 0, z: -20}
+  - {x: 20, y: 0, z: -10}
 --- !u!54 &738980044
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2180,12 +2198,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   leader: {fileID: 1498515308}
   followDistance: 10
-  soldierNumber: 3
-  formationOffsets:
+  isFighting: 0
+  isPatrolling: 0
+  isIdle: 1
+  isWandering: 0
+  isChasing: 0
+  wanderingFormation:
   - {x: -2, y: 0, z: 2}
   - {x: 2, y: 0, z: 2}
   - {x: -2, y: 0, z: -2}
   - {x: 2, y: 0, z: -2}
+  attackFormation:
+  - {x: -20, y: 0, z: -10}
+  - {x: -10, y: 0, z: -20}
+  - {x: 10, y: 0, z: -20}
+  - {x: 20, y: 0, z: -10}
 --- !u!54 &1576812867
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2779,12 +2806,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   leader: {fileID: 1498515308}
   followDistance: 10
-  soldierNumber: 0
-  formationOffsets:
+  isFighting: 0
+  isPatrolling: 0
+  isIdle: 1
+  isWandering: 0
+  isChasing: 0
+  wanderingFormation:
   - {x: -2, y: 0, z: 2}
   - {x: 2, y: 0, z: 2}
   - {x: -2, y: 0, z: -2}
   - {x: 2, y: 0, z: -2}
+  attackFormation:
+  - {x: -20, y: 0, z: -10}
+  - {x: -10, y: 0, z: -20}
+  - {x: 10, y: 0, z: -20}
+  - {x: 20, y: 0, z: -10}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

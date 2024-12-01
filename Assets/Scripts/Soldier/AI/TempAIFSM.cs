@@ -24,7 +24,7 @@ public class TempAIFSM : MonoBehaviour
     private GunScript gunScript;
     private SoldierAttributes attributes;
 
-    private bool enableDebugging = false; // Toggle for enabling/disabling debugging
+    public bool enableDebugging = true; // Toggle for enabling/disabling debugging
 
     private void Start()
     {
@@ -94,8 +94,8 @@ public class TempAIFSM : MonoBehaviour
         Log("Wandering...", false, "green");
 
         wanderTimer += Time.deltaTime;
-
-        if (wanderTimer >= wanderCooldown && transform.parent == null) //if soldier is not leader don't run the code to stop soldier wandering off. Then uses FollowLeader script instead 
+        //if soldier is not leader don't run the code to stop soldier wandering off. Then uses FollowLeader script instead
+        if (wanderTimer >= wanderCooldown && transform.parent == null) 
         {
             wanderTimer = 0f;
             wanderCooldown = Random.Range(1f, 10f);
@@ -194,6 +194,11 @@ public class TempAIFSM : MonoBehaviour
             Log("Reached retreat point. Switching to Idle.", false, "blue");
             currentState = State.Idle;
         }
+    }
+
+    public State GetCurrentState()
+    {
+        return currentState;
     }
 
     // Debugging Helpers

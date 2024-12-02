@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-public class TempAIFSM : MonoBehaviour
+public class FSM : MonoBehaviour
 {
     public enum State { Idle, Wandering, Chase, Attack, Retreat }
     public State currentState = State.Idle;

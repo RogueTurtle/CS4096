@@ -106,7 +106,7 @@ public class FollowLeader : MonoBehaviour
             Vector3 targetPosition = leader.position + leader.TransformDirection(offset);
             // Move the follower to the target position using NavMesh
             navMeshAgent.SetDestination(targetPosition);
-            navMeshAgent.avoidancePriority = Random.Range(20, 100);//prevents soldiers from bumping into eachother
+            
         }
         else
         {
@@ -131,7 +131,7 @@ public class FollowLeader : MonoBehaviour
             Vector3 targetPosition = leader.position + leader.TransformDirection(offset);
             // Move the follower to the target position using NavMesh
             navMeshAgent.SetDestination(targetPosition);
-            navMeshAgent.avoidancePriority = Random.Range(20, 100);//prevents soldiers from bumping into eachother
+            
         }
         else
         {
@@ -153,7 +153,7 @@ public class FollowLeader : MonoBehaviour
             Vector3 targetPosition = leader.position + leader.TransformDirection(offset);
             // Move the follower to the target position using NavMesh
             navMeshAgent.SetDestination(targetPosition);
-            navMeshAgent.avoidancePriority = Random.Range(20, 100);//prevents soldiers from bumping into eachother
+            
         }
         else
         {
@@ -169,7 +169,7 @@ public class FollowLeader : MonoBehaviour
             Vector3 targetPosition = leader.position - leader.forward * followDistance;
             // Set the NavMeshAgent's destination to the follow position
             navMeshAgent.SetDestination(targetPosition);
-            navMeshAgent.avoidancePriority = Random.Range(20, 100);//prevents soldiers from bumping into eachother
+            
         }
         else
         {

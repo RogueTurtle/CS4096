@@ -11,11 +11,9 @@ public class FollowLeader : MonoBehaviour
 
     public float followDistance = 3f;
 
-    public bool isFighting = false;
-    public bool isPatrolling = false;
-    public bool isIdle = true;
-    public bool isWandering = false;
-    public bool isChasing = false;
+    public bool dead = false;
+
+    private Health health;
 
     private NavMeshAgent navMeshAgent;
     //public Vector3 offset;
@@ -33,10 +31,10 @@ public class FollowLeader : MonoBehaviour
     };
     Vector3[] idleFormation = new Vector3[]
     {
-        new Vector3(-5f, 0f, -5f), // First soldier: Left and slightly back
-        new Vector3(5f, 0f, 5f),  // Second soldier: Right and slighlty forward
-        new Vector3(-10f, 0f, -5f), // Third soldier: Further Left and slighlty back
-        new Vector3(10f, 0f, 5f)   // Fourth soldier: Further Right and slighlty forward
+        new Vector3(-5, 0, -5), // First soldier: Left and slightly back
+        new Vector3(5, 0, 5),  // Second soldier: Right and slighlty forward
+        new Vector3(-10, 0, -5), // Third soldier: Further Left and slighlty back
+        new Vector3(10, 0, 5)   // Fourth soldier: Further Right and slighlty forward
     };
 
 
@@ -49,13 +47,15 @@ public class FollowLeader : MonoBehaviour
     }
     void Update()
     {
+        health = GetComponent<Health>();
+        dead = health.isDead;
         if (leaderFSM == null)
         {
-            Debug.LogWarning("Leader has no FSM scrpit attached");    
+            Debug.LogWarning("Leader has no FSM script attached");    
         }
         
-        TempAIFSM.State leaderState = leaderFSM.GetCurrentState();
-        if (leaderFSM.currentState != lastLeaderState) {
+        TempAIFSM.State leaderState = leaderFSM.GetCurrentState(); 
+        if (leaderFSM.currentState != lastLeaderState && !dead) {
             UpdateFormation(leaderFSM.currentState);
             lastLeaderState=leaderFSM.currentState;
         }
@@ -106,7 +106,7 @@ public class FollowLeader : MonoBehaviour
             Vector3 targetPosition = leader.position + leader.TransformDirection(offset);
             // Move the follower to the target position using NavMesh
             navMeshAgent.SetDestination(targetPosition);
-            navMeshAgent.avoidancePriority = Random.Range(0, 100);//prevents soldiers from bumping into eachother
+            navMeshAgent.avoidancePriority = Random.Range(20, 100);//prevents soldiers from bumping into eachother
         }
         else
         {
@@ -131,7 +131,7 @@ public class FollowLeader : MonoBehaviour
             Vector3 targetPosition = leader.position + leader.TransformDirection(offset);
             // Move the follower to the target position using NavMesh
             navMeshAgent.SetDestination(targetPosition);
-            navMeshAgent.avoidancePriority = Random.Range(0, 100);//prevents soldiers from bumping into eachother
+            navMeshAgent.avoidancePriority = Random.Range(20, 100);//prevents soldiers from bumping into eachother
         }
         else
         {
@@ -153,7 +153,7 @@ public class FollowLeader : MonoBehaviour
             Vector3 targetPosition = leader.position + leader.TransformDirection(offset);
             // Move the follower to the target position using NavMesh
             navMeshAgent.SetDestination(targetPosition);
-            navMeshAgent.avoidancePriority = Random.Range(0, 100);//prevents soldiers from bumping into eachother
+            navMeshAgent.avoidancePriority = Random.Range(20, 100);//prevents soldiers from bumping into eachother
         }
         else
         {
@@ -169,7 +169,7 @@ public class FollowLeader : MonoBehaviour
             Vector3 targetPosition = leader.position - leader.forward * followDistance;
             // Set the NavMeshAgent's destination to the follow position
             navMeshAgent.SetDestination(targetPosition);
-            navMeshAgent.avoidancePriority = Random.Range(0, 100);//prevents soldiers from bumping into eachother
+            navMeshAgent.avoidancePriority = Random.Range(20, 100);//prevents soldiers from bumping into eachother
         }
         else
         {

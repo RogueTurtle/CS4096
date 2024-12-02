@@ -24,6 +24,8 @@ public class TempAIFSM : MonoBehaviour
     private GunScript gunScript;
     private SoldierAttributes attributes;
 
+    private string name;
+
     public bool enableDebugging = true; // Toggle for enabling/disabling debugging
 
     private void Start()
@@ -94,8 +96,9 @@ public class TempAIFSM : MonoBehaviour
         Log("Wandering...", false, "green");
 
         wanderTimer += Time.deltaTime;
+        name = gameObject.name;
         //if soldier is not leader don't run the code to stop soldier wandering off. Then uses FollowLeader script instead
-        if (wanderTimer >= wanderCooldown && transform.parent == null) 
+        if (wanderTimer >= wanderCooldown && (name.Substring(0, name.Length).Contains("Leader") || name.Substring(0, name.Length).Contains("General"))) 
         {
             wanderTimer = 0f;
             wanderCooldown = Random.Range(1f, 10f);
@@ -124,55 +127,62 @@ public class TempAIFSM : MonoBehaviour
 
     private void ChaseState()
     {
-        Log("Chasing...", false, "yellow");
-
-        if (enemy == null)
+        name = gameObject.name;
+        if (!name.Substring(0, name.Length).Contains("General"))
         {
-            LogWarning("Enemy is missing! Switching to Idle.", "orange");
-            currentState = State.Idle;
-            return;
-        }
+            Log("Chasing...", false, "yellow");
 
-        agent.SetDestination(enemy.position);
+            if (enemy == null)
+            {
+                LogWarning("Enemy is missing! Switching to Idle.", "orange");
+                currentState = State.Idle;
+                return;
+            }
 
-        if (Vector3.Distance(transform.position, enemy.position) <= attributes.range)
-        {
-            Log("Enemy in attack range! Switching to Attack.", false, "red");
-            currentState = State.Attack;
+            agent.SetDestination(enemy.position);
+
+            if (Vector3.Distance(transform.position, enemy.position) <= attributes.range)
+            {
+                Log("Enemy in attack range! Switching to Attack.", false, "red");
+                currentState = State.Attack;
+            }
         }
     }
 
     private void AttackState()
     {
-        Log("Attacking...", false, "red");
-
-        if (enemy == null)
+        if (!name.Substring(0, name.Length).Contains("General"))
         {
-            LogWarning("Enemy is missing! Switching to Idle.", "orange");
-            currentState = State.Idle;
-            agent.isStopped = false;
-            return;
-        }
+            Log("Attacking...", false, "red");
 
-        agent.isStopped = true;
+            if (enemy == null)
+            {
+                LogWarning("Enemy is missing! Switching to Idle.", "orange");
+                currentState = State.Idle;
+                agent.isStopped = false;
+                return;
+            }
 
-        Vector3 direction = (enemy.position - transform.position).normalized;
-        Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
-        transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
+            agent.isStopped = true;
 
-        attackTimer += Time.deltaTime;
-        if (attackTimer >= attackCooldown)
-        {
-            attackTimer = 0f;
-            gunScript.Shoot();
-            Log("Attacking enemy!", false, "red");
-        }
+            Vector3 direction = (enemy.position - transform.position).normalized;
+            Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
+            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
 
-        if (attributes.health < attributes.GetHealth() * 0.2f)
-        {
-            Log("Health is too low! Switching to Retreat.", false, "blue");
-            agent.isStopped = false;
-            currentState = State.Retreat;
+            attackTimer += Time.deltaTime;
+            if (attackTimer >= attackCooldown)
+            {
+                attackTimer = 0f;
+                gunScript.Shoot();
+                Log("Attacking enemy!", false, "red");
+            }
+
+            if (attributes.health < attributes.GetHealth() * 0.2f)
+            {
+                Log("Health is too low! Switching to Retreat.", false, "blue");
+                agent.isStopped = false;
+                currentState = State.Retreat;
+            }
         }
     }
 

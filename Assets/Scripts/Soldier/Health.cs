@@ -4,6 +4,7 @@ public class Health : MonoBehaviour
 {
     public float health = 100f; // Initial health
     private RagdollController ragdollController;
+    public bool isDead;
 
     private void Start()
     {
@@ -24,7 +25,7 @@ public class Health : MonoBehaviour
         }
     }
 
-public float destroyDelay = 5f; // Time to destroy the object after death
+public float destroyDelay = 0.5f; // Time to destroy the object after death
 
 public void Die()
 {
@@ -35,9 +36,14 @@ public void Die()
     {
         ragdollController.ActivateRagdoll();
     }
-
+    isDead = true;
+    
     // Destroy the object after a delay
-    Destroy(gameObject, destroyDelay);
-}
+    if(!gameObject.name.Substring(0, name.Length).Contains("Leader"))
+        {
+            Destroy(gameObject, destroyDelay);
+        }
+        
+    }
 
 }

@@ -4,10 +4,8 @@ using UnityEngine.AI;
 public class SquadLeader : MonoBehaviour
 {
     private NavMeshAgent navMeshAgent;
-
     private Health health;
     private bool dead = false;
-
     private void Update()
     {
         int childCount = gameObject.transform.childCount;
@@ -18,7 +16,6 @@ public class SquadLeader : MonoBehaviour
             Destroy(gameObject);
         }
     }
-
     public void setPosition(Vector3 offset, Transform leader) 
     {
         // Calculate the target position in the formation

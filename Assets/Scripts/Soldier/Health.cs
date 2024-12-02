@@ -6,6 +6,8 @@ public class Health : MonoBehaviour
     public float destroyDelay = 5f; // Time to destroy the object after death
     private RagdollController ragdollController;
     private bool isRagdolling = false; // Ragdoll status
+    public bool IsDead => health <= 0;
+
 
     private void Start()
     {

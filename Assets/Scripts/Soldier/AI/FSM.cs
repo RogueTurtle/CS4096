@@ -1,10 +1,15 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-public class FSM : MonoBehaviour
+public class TempAIFSM : MonoBehaviour
 {
     public enum State { Idle, Wandering, Chase, Attack, Retreat }
     public State currentState = State.Idle;
+
+    public State GetCurrentState()
+    {
+        return currentState;
+    }
 
     public Transform enemy;
     public Transform retreatPoint;

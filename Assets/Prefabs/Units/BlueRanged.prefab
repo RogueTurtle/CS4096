@@ -301,7 +301,7 @@ MonoBehaviour:
   enemy: {fileID: 0}
   retreatPoint: {fileID: 0}
   agent: {fileID: 0}
-  detectionRange: 50
+  detectionRange: 80
   idleToWanderTime: 3
   enableDebugging: 1
 --- !u!114 &981352011710281141

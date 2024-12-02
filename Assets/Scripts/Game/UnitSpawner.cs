@@ -6,17 +6,25 @@ public class UnitSpawner : MonoBehaviour
     public GameObject redMeleePrefab;
     public GameObject blueRangedPrefab;
     public GameObject blueMeleePrefab;
+    public GameObject redGeneralPrefab; 
+    public GameObject blueGeneralPrefab; 
 
     public Transform[] redSpawnPoints;
     public Transform[] blueSpawnPoints;
 
     public int rangedCount = 10;
     public int meleeCount = 10;
+    public int generalCount = 1; // Number of generals per team 
 
     private void Start()
     {
+        // Spawn Red Team Units
         SpawnUnits(redSpawnPoints, "Team1", redRangedPrefab, redMeleePrefab, rangedCount, meleeCount);
+        SpawnGenerals(redSpawnPoints, "Team1", redGeneralPrefab, generalCount);
+
+        // Spawn Blue Team Units
         SpawnUnits(blueSpawnPoints, "Team2", blueRangedPrefab, blueMeleePrefab, rangedCount, meleeCount);
+        SpawnGenerals(blueSpawnPoints, "Team2", blueGeneralPrefab, generalCount);
     }
 
     private void SpawnUnits(Transform[] spawnPoints, string teamTag, GameObject rangedPrefab, GameObject meleePrefab, int rangedUnits, int meleeUnits)
@@ -31,6 +39,15 @@ public class UnitSpawner : MonoBehaviour
         for (int i = 0; i < meleeUnits; i++)
         {
             SpawnUnit(spawnPoints, teamTag, meleePrefab);
+        }
+    }
+
+    private void SpawnGenerals(Transform[] spawnPoints, string teamTag, GameObject generalPrefab, int generalUnits)
+    {
+        // Spawn generals
+        for (int i = 0; i < generalUnits; i++)
+        {
+            SpawnUnit(spawnPoints, teamTag, generalPrefab);
         }
     }
 

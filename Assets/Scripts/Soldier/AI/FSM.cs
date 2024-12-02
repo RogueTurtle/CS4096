@@ -122,7 +122,7 @@ public class TempAIFSM : MonoBehaviour
         }
     }
 
-   private void ChaseState()
+  private void ChaseState()
 {
     Log("Chasing...", false, "yellow");
 
@@ -154,7 +154,6 @@ public class TempAIFSM : MonoBehaviour
         Log($"Chasing enemy at {enemy.position}. Distance: {distanceToEnemy}", false, "yellow");
     }
 }
-
 
 private void AttackState()
 {
@@ -214,8 +213,7 @@ private void AttackState()
         currentState = State.Retreat;
     }
 }
-
-    private void RetreatState()
+private void RetreatState()
     {
         if (retreatPoint == null)
         {
@@ -231,38 +229,29 @@ private void AttackState()
         }
     }
 
-    private Transform FindClosestEnemy()
+private Transform FindClosestEnemy()
+{
+    string opposingTeamTag = gameObject.tag == "Team1" ? "Team2" : "Team1";
+    GameObject[] enemies = GameObject.FindGameObjectsWithTag(opposingTeamTag);
+
+    Transform closestEnemy = null;
+    float closestDistance = Mathf.Infinity;
+
+    foreach (GameObject enemyObj in enemies)
     {
-        string opposingTeamTag = gameObject.tag == "Team1" ? "Team2" : "Team1";
-        GameObject[] enemies = GameObject.FindGameObjectsWithTag(opposingTeamTag);
+        Health enemyHealth = enemyObj.GetComponent<Health>();
+        if (enemyHealth == null || enemyHealth.IsDead) continue; // Skip dead enemies
 
-        Transform closestEnemy = null;
-        float closestDistance = Mathf.Infinity;
-
-        if (ShouldFocusFire() && FocusedTarget != null && !FocusedTarget.GetComponent<Health>().IsRagdolling)
+        float distance = Vector3.Distance(transform.position, enemyObj.transform.position);
+        if (distance < closestDistance && distance <= detectionRange) // Check range
         {
-            return FocusedTarget;
+            closestDistance = distance;
+            closestEnemy = enemyObj.transform;
         }
-
-        foreach (GameObject enemyObj in enemies)
-        {
-            if (enemyObj.GetComponent<Health>()?.IsRagdolling == true) continue;
-
-            float distance = Vector3.Distance(transform.position, enemyObj.transform.position);
-            if (distance < closestDistance)
-            {
-                closestDistance = distance;
-                closestEnemy = enemyObj.transform;
-            }
-        }
-
-        if (closestEnemy != null && Random.value < 0.3f) // 30% chance to focus fire
-        {
-            FocusedTarget = closestEnemy;
-        }
-
-        return closestEnemy;
     }
+
+    return closestEnemy;
+}
 
     private bool ShouldFocusFire()
     {

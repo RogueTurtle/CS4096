@@ -15,7 +15,14 @@ public class CameraController : MonoBehaviour
     public Vector3 zoomAmount;
     public Vector3 newZoom;
     public Vector3 newPosition;
-    public Quaternion newRotation; 
+    public Quaternion newRotation;
+
+    public float mouseScrollSensitivity = 10f; // Adjust sensitivity for mouse wheel zoom
+
+    public KeyCode speedUpKey = KeyCode.Space; // Key to speed up time
+    public float normalTimeScale = 1f;
+    public float fastTimeScale = 4f; // Time scale when speed-up is active
+
     // Start is called before the first frame update
     void Start()
     {
@@ -28,6 +35,7 @@ public class CameraController : MonoBehaviour
     void Update()
     {
         HandleInput();
+        HandleTimeScale();
     }
 
     void HandleInput()
@@ -40,6 +48,8 @@ public class CameraController : MonoBehaviour
         {
             movementSpeed = normalSpeed;
         }
+
+        // Movement Controls
         if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
         {
             newPosition += (transform.forward * movementSpeed);
@@ -57,15 +67,17 @@ public class CameraController : MonoBehaviour
             newPosition += (transform.right * movementSpeed);
         }
 
+        // Rotation Controls
         if ((Input.GetKey(KeyCode.Q)))
         {
             newRotation *= Quaternion.Euler(Vector3.up * rotationAmount);
         }
-        if (Input.GetKey(KeyCode.E)) 
+        if (Input.GetKey(KeyCode.E))
         {
             newRotation *= Quaternion.Euler(Vector3.up * -rotationAmount);
         }
 
+        // Zoom Controls with Keys
         if (Input.GetKey(KeyCode.Z))
         {
             newZoom += zoomAmount;
@@ -75,8 +87,29 @@ public class CameraController : MonoBehaviour
             newZoom -= zoomAmount;
         }
 
+        // Zoom Controls with Mouse Wheel
+        float scrollInput = Input.GetAxis("Mouse ScrollWheel");
+        if (scrollInput != 0f)
+        {
+            newZoom += zoomAmount * scrollInput * mouseScrollSensitivity;
+        }
+
+        // Smooth Transitions
         transform.position = Vector3.Lerp(transform.position, newPosition, Time.deltaTime * movementTime);
         transform.rotation = Quaternion.Lerp(transform.rotation, newRotation, Time.deltaTime * movementTime);
         cameraTransform.localPosition = Vector3.Lerp(cameraTransform.localPosition, newZoom, Time.deltaTime * movementTime);
+    }
+
+    void HandleTimeScale()
+    {
+        // Check for the speed-up key
+        if (Input.GetKeyDown(speedUpKey))
+        {
+            Time.timeScale = fastTimeScale; // Speed up time
+        }
+        else if (Input.GetKeyUp(speedUpKey))
+        {
+            Time.timeScale = normalTimeScale; // Reset time to normal
+        }
     }
 }

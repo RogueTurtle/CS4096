@@ -48,7 +48,7 @@ public class FollowLeader : MonoBehaviour
     void Update()
     {
         health = GetComponent<Health>();
-        dead = health.isDead;
+        dead = health.IsDead;
         if (leaderFSM == null)
         {
             Debug.LogWarning("Leader has no FSM script attached");    

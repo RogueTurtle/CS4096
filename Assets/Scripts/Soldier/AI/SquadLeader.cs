@@ -10,7 +10,7 @@ public class SquadLeader : MonoBehaviour
     {
         int childCount = gameObject.transform.childCount;
         health = gameObject.GetComponent<Health>();
-        dead = health.isDead;
+        dead = health.IsDead;
         if (childCount <= 1 && dead)
         {
             Destroy(gameObject);

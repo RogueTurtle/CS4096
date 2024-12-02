@@ -6,8 +6,11 @@ public class Health : MonoBehaviour
     public float destroyDelay = 5f; // Time to destroy the object after death
     private RagdollController ragdollController;
     private bool isRagdolling = false; // Ragdoll status
+
+    // Property to check if the unit is dead
     public bool IsDead => health <= 0;
 
+    public bool IsRagdolling => isRagdolling;
 
     private void Start()
     {
@@ -22,16 +25,16 @@ public class Health : MonoBehaviour
         }
     }
 
-    public bool IsRagdolling => isRagdolling;
-
     public void TakeDamage(float damage, GameObject attacker = null)
     {
+        if (IsDead) return; // Prevent further damage to a dead unit
+
         // Reduce health
         health -= damage;
         Debug.Log($"{gameObject.name} took {damage} damage! Remaining health: {health}");
 
         // Check if health is depleted
-        if (health <= 0)
+        if (IsDead)
         {
             Die(attacker);
         }
@@ -65,5 +68,6 @@ public class Health : MonoBehaviour
     private void OnKill(SoldierAttributes attackerAttributes)
     {
         Debug.Log($"{attackerAttributes.gameObject.name} killed {gameObject.name}!");
+        // Optional: Increment kill counters or other gameplay logic
     }
 }

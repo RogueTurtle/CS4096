@@ -211,11 +211,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7598e0a736e9a2d409141d5f57498d69, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseHealth: 10
+  baseHealth: 40
   baseDamage: 3
   baseSpeed: 10
   baseRange: 50
   baseMorale: 100
+  isMelee: 0
   health: 100
   damage: 23
   speed: 9.91

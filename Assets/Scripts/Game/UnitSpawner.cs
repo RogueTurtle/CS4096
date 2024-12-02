@@ -68,7 +68,7 @@ public class UnitSpawner : MonoBehaviour
         unit.tag = teamTag;
 
         // Assign the retreat point dynamically
-        TempAIFSM ai = unit.GetComponent<TempAIFSM>();
+        FSM ai = unit.GetComponent<FSM>();
         if (ai != null)
         {
             ai.retreatPoint = retreatPoint;

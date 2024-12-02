@@ -13,9 +13,9 @@ public class General : MonoBehaviour
     public Transform generalTransform;
     public float formationSpacing = 15f;
     public float followDistance = 5f;
-    private TempAIFSM leaderFSM;
-    private TempAIFSM.State[] previousStates;
-    private TempAIFSM.State currentState;
+    private FSM leaderFSM;
+    private FSM.State[] previousStates;
+    private FSM.State currentState;
     private GameObject leaderObject;
     private Vector3 offset;
     public Vector3[] squareFormation = new Vector3[]
@@ -45,16 +45,16 @@ public class General : MonoBehaviour
     void Start()
     {
         squadLeaders = GetGeneralChildren();
-        UpdateSquadFormation(TempAIFSM.State.Idle);
+        UpdateSquadFormation(FSM.State.Idle);
     }
     void Update()
     {
         for (int i = 0; i < squadLeaders.Length; i++)
         {
             
-                TempAIFSM leader = squadLeaders[i].GetComponent<TempAIFSM>();
+                FSM leader = squadLeaders[i].GetComponent<FSM>();
             
-                TempAIFSM.State currentState = leader.GetCurrentState();
+                FSM.State currentState = leader.GetCurrentState();
                 // Check if the state has changed
                 if (previousStates[i] != currentState)
                 {
@@ -66,23 +66,23 @@ public class General : MonoBehaviour
         }
     }
         // This method updates the formation of squads
-        public void UpdateSquadFormation(TempAIFSM.State newState)
+        public void UpdateSquadFormation(FSM.State newState)
         {
             switch (newState)
             {
-                case TempAIFSM.State.Idle:
+                case FSM.State.Idle:
                     setSquareFormation();
                     break;
-                case TempAIFSM.State.Attack:
+                case FSM.State.Attack:
                     setZigZagFormation();
                     break;
-                case TempAIFSM.State.Wandering:
+                case FSM.State.Wandering:
                     setSquareFormation();
                     break;
-                case TempAIFSM.State.Chase:
+                case FSM.State.Chase:
                     setVFormation();
                     break;
-                case TempAIFSM.State.Retreat:
+                case FSM.State.Retreat:
                     setSquareFormation();
                     break;
                 default:
@@ -113,12 +113,12 @@ public class General : MonoBehaviour
                 squadLeader.setPosition(zigZagFormation[i], generalTransform);
             }
         }
-        public TempAIFSM.State[] getCurrentStates()
+        public FSM.State[] getCurrentStates()
         {
-            List<TempAIFSM.State> states = new List<TempAIFSM.State>();
+            List<FSM.State> states = new List<FSM.State>();
             for (int i = 0; i < squadLeaders.Length; i++)
             {
-                leaderFSM = squadLeaders[i].GetComponent<TempAIFSM>();
+                leaderFSM = squadLeaders[i].GetComponent<FSM>();
                 states.Add(leaderFSM.GetCurrentState());
             }
             return states.ToArray();

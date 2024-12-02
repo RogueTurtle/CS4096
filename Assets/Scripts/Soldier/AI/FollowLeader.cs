@@ -4,8 +4,8 @@ using UnityEngine.AI;
 
 public class FollowLeader : MonoBehaviour
 {
-    private TempAIFSM leaderFSM;
-    private TempAIFSM.State lastLeaderState;
+    private FSM leaderFSM;
+    private FSM.State lastLeaderState;
 
     public Transform leader;
 
@@ -42,7 +42,7 @@ public class FollowLeader : MonoBehaviour
     {
         navMeshAgent = GetComponent<NavMeshAgent>();
 
-        leaderFSM = gameObject.GetComponent<TempAIFSM>();
+        leaderFSM = gameObject.GetComponent<FSM>();
         lastLeaderState = leaderFSM.currentState;
     }
     void Update()
@@ -54,7 +54,7 @@ public class FollowLeader : MonoBehaviour
             Debug.LogWarning("Leader has no FSM script attached");    
         }
         
-        TempAIFSM.State leaderState = leaderFSM.GetCurrentState(); 
+        FSM.State leaderState = leaderFSM.GetCurrentState(); 
         if (leaderFSM.currentState != lastLeaderState && !dead) {
             UpdateFormation(leaderFSM.currentState);
             lastLeaderState=leaderFSM.currentState;
@@ -67,22 +67,22 @@ public class FollowLeader : MonoBehaviour
 
     }
 
-    private void UpdateFormation(TempAIFSM.State leaderState)
+    private void UpdateFormation(FSM.State leaderState)
     {
         switch (leaderState) {
-            case TempAIFSM.State.Idle:
+            case FSM.State.Idle:
                 setIdleFormation();
                 break;
-            case TempAIFSM.State.Attack:
+            case FSM.State.Attack:
                 setAttackFormation();
                 break;
-            case TempAIFSM.State.Wandering:
+            case FSM.State.Wandering:
                 setWanderingFormation();
                 break;
-            case TempAIFSM.State.Chase:
+            case FSM.State.Chase:
                 setAttackFormation();
                 break;
-            case TempAIFSM.State.Retreat:
+            case FSM.State.Retreat:
                 setRetreatFormation();
                 break;
             default:

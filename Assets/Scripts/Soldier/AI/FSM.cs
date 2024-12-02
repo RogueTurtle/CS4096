@@ -6,6 +6,11 @@ public class FSM : MonoBehaviour
     public enum State { Idle, Wandering, Chase, Attack, Retreat }
     public State currentState = State.Idle;
 
+    public State GetCurrentState()
+    {
+        return currentState;
+    }
+
     public Transform enemy;
     public Transform retreatPoint;
     public NavMeshAgent agent;
@@ -22,6 +27,7 @@ public class FSM : MonoBehaviour
     private Health healthComponent;
     private GunScript gunScript;
     private SoldierAttributes attributes;
+    private Health health;
 
     public bool enableDebugging = true;
 
@@ -34,6 +40,7 @@ public class FSM : MonoBehaviour
         healthComponent = GetComponent<Health>();
         gunScript = GetComponent<GunScript>();
         attributes = GetComponent<SoldierAttributes>();
+        health= GetComponent<Health>();
 
         if (attributes != null && agent != null)
         {
@@ -117,7 +124,7 @@ public class FSM : MonoBehaviour
         }
     }
 
-   private void ChaseState()
+  private void ChaseState()
 {
     Log("Chasing...", false, "yellow");
 
@@ -149,7 +156,6 @@ public class FSM : MonoBehaviour
         Log($"Chasing enemy at {enemy.position}. Distance: {distanceToEnemy}", false, "yellow");
     }
 }
-
 
 private void AttackState()
 {
@@ -202,15 +208,14 @@ private void AttackState()
     }
 
     // Retreat if health is low
-    if (attributes.health < attributes.GetHealth() * 0.2f)
+     if (health.Retreat())
     {
         Log("Health is too low! Switching to Retreat.", false, "blue");
         agent.isStopped = false;
         currentState = State.Retreat;
     }
 }
-
-    private void RetreatState()
+private void RetreatState()
     {
         if (retreatPoint == null)
         {
@@ -226,38 +231,29 @@ private void AttackState()
         }
     }
 
-    private Transform FindClosestEnemy()
+private Transform FindClosestEnemy()
+{
+    string opposingTeamTag = gameObject.tag == "Team1" ? "Team2" : "Team1";
+    GameObject[] enemies = GameObject.FindGameObjectsWithTag(opposingTeamTag);
+
+    Transform closestEnemy = null;
+    float closestDistance = Mathf.Infinity;
+
+    foreach (GameObject enemyObj in enemies)
     {
-        string opposingTeamTag = gameObject.tag == "Team1" ? "Team2" : "Team1";
-        GameObject[] enemies = GameObject.FindGameObjectsWithTag(opposingTeamTag);
+        Health enemyHealth = enemyObj.GetComponent<Health>();
+        if (enemyHealth == null || enemyHealth.IsDead) continue; // Skip dead enemies
 
-        Transform closestEnemy = null;
-        float closestDistance = Mathf.Infinity;
-
-        if (ShouldFocusFire() && FocusedTarget != null && !FocusedTarget.GetComponent<Health>().IsRagdolling)
+        float distance = Vector3.Distance(transform.position, enemyObj.transform.position);
+        if (distance < closestDistance && distance <= detectionRange) // Check range
         {
-            return FocusedTarget;
+            closestDistance = distance;
+            closestEnemy = enemyObj.transform;
         }
-
-        foreach (GameObject enemyObj in enemies)
-        {
-            if (enemyObj.GetComponent<Health>()?.IsRagdolling == true) continue;
-
-            float distance = Vector3.Distance(transform.position, enemyObj.transform.position);
-            if (distance < closestDistance)
-            {
-                closestDistance = distance;
-                closestEnemy = enemyObj.transform;
-            }
-        }
-
-        if (closestEnemy != null && Random.value < 0.3f) // 30% chance to focus fire
-        {
-            FocusedTarget = closestEnemy;
-        }
-
-        return closestEnemy;
     }
+
+    return closestEnemy;
+}
 
     private bool ShouldFocusFire()
     {

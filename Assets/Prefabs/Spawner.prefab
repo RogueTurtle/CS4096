@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &47127428143176518
+--- !u!1 &592844604855972811
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,8 +8,8 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 9091877802367304808}
-  - component: {fileID: 302097280957600971}
+  - component: {fileID: 3535677983111659453}
+  - component: {fileID: 6215452712567399527}
   m_Layer: 0
   m_Name: Spawner
   m_TagString: Untagged
@@ -17,13 +17,13 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &9091877802367304808
+--- !u!4 &3535677983111659453
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 47127428143176518}
+  m_GameObject: {fileID: 592844604855972811}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 89.64998, y: 7.368494, z: 149.16571}
@@ -32,13 +32,13 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &302097280957600971
+--- !u!114 &6215452712567399527
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 47127428143176518}
+  m_GameObject: {fileID: 592844604855972811}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0b673df2698cc454f8ac0ed621080ac7, type: 3}
@@ -48,11 +48,18 @@ MonoBehaviour:
   redMeleePrefab: {fileID: 4669306145473971247, guid: d7a35ba155bfb1041b38fe83c8e2a53e, type: 3}
   blueRangedPrefab: {fileID: 173023412462946437, guid: 111f31e93e03486489e7010d36c0b86e, type: 3}
   blueMeleePrefab: {fileID: 173023412462946437, guid: 63610d58edd23c74288d556482952b84, type: 3}
+  redGeneralPrefab: {fileID: 6574283409488585797, guid: cc303b793b12132489090a84aec7c220, type: 3}
+  blueGeneralPrefab: {fileID: 5078233704231685367, guid: b5c259468196ec04382fb845ff8e5059, type: 3}
   redSpawnPoints:
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   blueSpawnPoints:
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   rangedCount: 2
-  meleeCount: 10
+  meleeCount: 0
+  generalCount: 1

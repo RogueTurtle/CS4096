@@ -2,19 +2,19 @@ using UnityEngine;
 
 public class GunScript : MonoBehaviour
 {
-    public float damage = 10;
-    public float range = 50f;
+    public float damage = 10; // Default damage value
+    public float range = 50f; // Shooting range
 
     // Particle effect fields
     public GameObject muzzleFlashPrefab; // Assign this in the Inspector
     public GameObject impactEffectPrefab; // Assign this in the Inspector
     public Transform gunBarrel; // Assign this as the position where the muzzle flash will appear
 
-    SoldierAttributes soldierAttributes;
+    private SoldierAttributes soldierAttributes;
 
     private void Start()
     {
-        // Get damage from SoldierAttributes
+        // Get damage value from SoldierAttributes
         soldierAttributes = GetComponent<SoldierAttributes>();
         if (soldierAttributes != null)
         {
@@ -33,22 +33,37 @@ public class GunScript : MonoBehaviour
 
         RaycastHit hit;
 
-        // Use the GameObject's position and forward direction
-        if (Physics.Raycast(transform.position, transform.forward, out hit, range))
+        // Use the gunBarrel's position and forward direction for the raycast
+        if (Physics.Raycast(gunBarrel.position, gunBarrel.forward, out hit, range))
         {
             Debug.Log($"Shot hit: {hit.transform.name}");
 
-            // Apply damage if the target has a Health component
-            Health target = hit.transform.GetComponent<Health>();
-            if (target != null)
-            {
-                Debug.Log($"Dealing {damage} damage to {hit.transform.name}");
-                target.TakeDamage(damage);
+            // Check the tag of the hit object
+            string shooterTag = gameObject.tag; // The shooting unit's tag (e.g., "Team1")
+            string targetTag = shooterTag == "Team1" ? "Team2" : "Team1"; // Determine enemy tag
 
-                if (target.health <= 0)
+            if (hit.transform.CompareTag(targetTag))
+            {
+                // Apply damage if the target has a Health component
+                Health target = hit.transform.GetComponent<Health>();
+                if (target != null)
                 {
-                    Debug.Log($"{hit.transform.name} has been killed.");
+                    Debug.Log($"Dealing {damage} damage to {hit.transform.name}");
+                    target.TakeDamage(damage);
+
+                    if (target.IsDead)
+                    {
+                        Debug.Log($"{hit.transform.name} has been killed.");
+                    }
                 }
+                else
+                {
+                    Debug.LogWarning($"Hit {hit.transform.name}, but it has no Health component.");
+                }
+            }
+            else
+            {
+                Debug.Log($"Hit {hit.transform.name}, but it's not a valid target (tag: {hit.transform.tag}).");
             }
 
             // Spawn the impact effect at the hit point

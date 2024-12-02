@@ -524,11 +524,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7598e0a736e9a2d409141d5f57498d69, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseHealth: 10
-  baseDamage: 3
+  baseHealth: 40
+  baseDamage: 7
   baseSpeed: 10
-  baseRange: 50
+  baseRange: 20
   baseMorale: 100
+  isMelee: 0
   health: 100
   damage: 23
   speed: 10
@@ -546,8 +547,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1a14fcbb66490243be3fc67e0a9375c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 3
-  range: 20
+  damage: 7
+  range: 50
   muzzleFlashPrefab: {fileID: 4249380019712659002, guid: 04cff048d27547244bc8063086095b48, type: 3}
   impactEffectPrefab: {fileID: 0}
   gunBarrel: {fileID: 9137832580504648996}
@@ -567,7 +568,7 @@ MonoBehaviour:
   enemy: {fileID: 0}
   retreatPoint: {fileID: 0}
   agent: {fileID: 0}
-  detectionRange: 50
+  detectionRange: 80
   idleToWanderTime: 3
   enableDebugging: 1
 --- !u!114 &7076477871562461149

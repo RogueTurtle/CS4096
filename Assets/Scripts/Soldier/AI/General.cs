@@ -1,31 +1,23 @@
 using System.Collections.Generic;
 using UnityEngine.AI;
 using UnityEngine;
-
 public class General : MonoBehaviour
 {
     public Transform[] squadLeaders;
     public Transform retreatPoint;
-
     // References to other components
     private Health healthComponent;
     private SoldierAttributes attributes;
     public enum FormationType { ZigZag, VShape, Square }
     public FormationType currentFormation = FormationType.Square;
-
     public Transform generalTransform;
-
     public float formationSpacing = 15f;
     public float followDistance = 5f;
-
     private TempAIFSM leaderFSM;
     private TempAIFSM.State[] previousStates;
     private TempAIFSM.State currentState;
-
     private GameObject leaderObject;
-
     private Vector3 offset;
-
     public Vector3[] squareFormation = new Vector3[]
     {
         new Vector3(0, 0, 5),    // Middle squad 
@@ -55,7 +47,6 @@ public class General : MonoBehaviour
         squadLeaders = GetGeneralChildren();
         UpdateSquadFormation(TempAIFSM.State.Idle);
     }
-
     void Update()
     {
         for (int i = 0; i < squadLeaders.Length; i++)
@@ -64,20 +55,16 @@ public class General : MonoBehaviour
                 TempAIFSM leader = squadLeaders[i].GetComponent<TempAIFSM>();
             
                 TempAIFSM.State currentState = leader.GetCurrentState();
-
                 // Check if the state has changed
                 if (previousStates[i] != currentState)
                 {
-
                     // Update the stored state
                     previousStates[i] = currentState;
-
                     // Take actions based on the new state
                     UpdateSquadFormation(currentState);
                 }
         }
     }
-
         // This method updates the formation of squads
         public void UpdateSquadFormation(TempAIFSM.State newState)
         {
@@ -102,7 +89,6 @@ public class General : MonoBehaviour
                     break;
             }
         }
-
         void setSquareFormation()
         {
             for (int i = 0; i < squadLeaders.Length; i++)
@@ -111,7 +97,6 @@ public class General : MonoBehaviour
                 squadLeader.setPosition(squareFormation[i], generalTransform);
             }
         }
-
         void setVFormation()
         {
             for (int i = 0; i < squadLeaders.Length; i++)
@@ -120,7 +105,6 @@ public class General : MonoBehaviour
                 squadLeader.setPosition(vFormation[i], generalTransform);
             }
         }
-
         void setZigZagFormation()
         {
             for (int i = 0; i < squadLeaders.Length; i++)
@@ -129,7 +113,6 @@ public class General : MonoBehaviour
                 squadLeader.setPosition(zigZagFormation[i], generalTransform);
             }
         }
-
         public TempAIFSM.State[] getCurrentStates()
         {
             List<TempAIFSM.State> states = new List<TempAIFSM.State>();
@@ -140,7 +123,6 @@ public class General : MonoBehaviour
             }
             return states.ToArray();
         }
-
         public Transform[] GetGeneralChildren()
         {
             List<Transform> leaders = new List<Transform>();

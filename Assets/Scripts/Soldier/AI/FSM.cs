@@ -27,6 +27,7 @@ public class TempAIFSM : MonoBehaviour
     private Health healthComponent;
     private GunScript gunScript;
     private SoldierAttributes attributes;
+    private Health health;
 
     public bool enableDebugging = true;
 
@@ -39,6 +40,7 @@ public class TempAIFSM : MonoBehaviour
         healthComponent = GetComponent<Health>();
         gunScript = GetComponent<GunScript>();
         attributes = GetComponent<SoldierAttributes>();
+        health = GetComponent<Health>();
 
         if (attributes != null && agent != null)
         {
@@ -207,7 +209,7 @@ private void AttackState()
     }
 
     // Retreat if health is low
-    if (attributes.health < attributes.GetHealth() * 0.2f)
+    if (health.Retreat())
     {
         Log("Health is too low! Switching to Retreat.", false, "blue");
         agent.isStopped = false;

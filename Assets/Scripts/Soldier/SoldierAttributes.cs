@@ -1,21 +1,41 @@
-
 using UnityEngine;
 using UnityEngine.AI;
 
 public class SoldierAttributes : MonoBehaviour
 {
-    public float health = 10f;
-    public float damage = 3f;
-    public float speed = 10f;
-    public float range = 50f;
-    public float morale = 100f;
+    // Base stats
+    public float baseHealth = 10f;
+    public float baseDamage = 3f;
+    public float baseSpeed = 10f;
+    public float baseRange = 50f;
+    public float baseMorale = 100f;
+    public bool isMelee = false;
+
+    // Actual randomized stats
+    [HideInInspector] public float health;
+    [HideInInspector] public float damage;
+    [HideInInspector] public float speed;
+    [HideInInspector] public float range;
+    [HideInInspector] public float morale;
 
     NavMeshAgent agent;
 
     private void Start()
     {
+        // Randomize stats within a range
+        health = baseHealth * Random.Range(0.9f, 1.1f); // ±10% variation
+        damage = baseDamage * Random.Range(0.9f, 1.1f); // ±10% variation
+        speed = baseSpeed * Random.Range(0.9f, 1.1f);   // ±10% variation
+        range = baseRange * Random.Range(0.9f, 1.1f);   // ±10% variation
+        morale = baseMorale * Random.Range(0.9f, 1.1f); // ±10% variation
+
         agent = GetComponent<NavMeshAgent>();
-        agent.speed = speed;
+        if (agent != null)
+        {
+            agent.speed = speed;
+        }
+
+        Debug.Log($"{gameObject.name} Stats - Health: {health}, Damage: {damage}, Speed: {speed}, Range: {range}, Morale: {morale}");
     }
 
     public float GetHealth()

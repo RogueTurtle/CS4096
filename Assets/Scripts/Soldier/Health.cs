@@ -3,16 +3,26 @@ using UnityEngine;
 public class Health : MonoBehaviour
 {
     public float health = 100f; // Initial health
+    public float destroyDelay = 5f; // Time to destroy the object after death
     private RagdollController ragdollController;
-    public bool isDead;
+    private bool isRagdolling = false; // Ragdoll status
 
     private void Start()
     {
         // Get reference to the RagdollController
         ragdollController = GetComponent<RagdollController>();
+
+        // Sync health with randomized health from SoldierAttributes
+        var attributes = GetComponent<SoldierAttributes>();
+        if (attributes != null)
+        {
+            health = attributes.health; // Use the randomized health
+        }
     }
 
-    public void TakeDamage(float damage)
+    public bool IsRagdolling => isRagdolling;
+
+    public void TakeDamage(float damage, GameObject attacker = null)
     {
         // Reduce health
         health -= damage;
@@ -21,29 +31,37 @@ public class Health : MonoBehaviour
         // Check if health is depleted
         if (health <= 0)
         {
-            Die();
+            Die(attacker);
         }
     }
 
-public float destroyDelay = 0.5f; // Time to destroy the object after death
-
-public void Die()
-{
-    Debug.Log($"{gameObject.name} is dead!");
-
-    // Activate the "ragdoll" physics
-    if (ragdollController != null)
+    private void Die(GameObject attacker)
     {
-        ragdollController.ActivateRagdoll();
-    }
-    isDead = true;
-    
-    // Destroy the object after a delay
-    if(!gameObject.name.Substring(0, name.Length).Contains("Leader"))
+        Debug.Log($"{gameObject.name} has died!");
+        isRagdolling = true; // Mark as ragdoll
+
+        // Notify the attacker using OnKill
+        if (attacker != null)
         {
-            Destroy(gameObject, destroyDelay);
+            var attackerAttributes = attacker.GetComponent<SoldierAttributes>();
+            if (attackerAttributes != null)
+            {
+                OnKill(attackerAttributes);
+            }
         }
-        
+
+        // Activate the "ragdoll" physics
+        if (ragdollController != null)
+        {
+            ragdollController.ActivateRagdoll();
+        }
+
+        // Destroy the object after a delay
+        Destroy(gameObject, destroyDelay);
     }
 
+    private void OnKill(SoldierAttributes attackerAttributes)
+    {
+        Debug.Log($"{attackerAttributes.gameObject.name} killed {gameObject.name}!");
+    }
 }
